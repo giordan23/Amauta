@@ -2,8 +2,10 @@
   "feature": "auth-login-registro",
   "goal": "Registro e inicio de sesion (email + password)",
   "started": "2026-04-26",
-  "current_step": "planner",
-  "completed": ["skill-finder"],
-  "pending": ["planner", "delegator", "executor", "reviewer"],
+  "finished": "2026-04-26",
+  "current_step": "completado",
+  "current_task": null,
+  "completed": ["skill-finder", "planner", "T1", "T2", "T3", "T4", "T5", "T6", "T7"],
+  "pending": [],
   "blocked_by": null
 }

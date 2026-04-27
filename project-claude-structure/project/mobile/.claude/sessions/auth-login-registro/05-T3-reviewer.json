@@ -1,0 +1,18 @@
+{
+  "tarea_id": "T3",
+  "veredicto": "APROBADO",
+  "resumen": "Cliente HTTP configurado correctamente con interceptores.",
+  "items_aprobados": [
+    "api.ts exporta instancia de axios",
+    "config/index.ts exporta API_URL",
+    "Request interceptor lee token de SecureStore",
+    "Request interceptor agrega Authorization header",
+    "Response interceptor detecta 401",
+    "Response interceptor elimina token en 401",
+    "Timeout configurado a 10000ms",
+    "TypeScript estricto con tipos de axios"
+  ],
+  "items_rechazados": [],
+  "instruccion_para_executor": null,
+  "notas": "TOKEN_KEY deberia exportarse o definirse en un lugar comun para que authService use la misma constante. Considerar crear src/constants/auth.ts en el futuro."
+}

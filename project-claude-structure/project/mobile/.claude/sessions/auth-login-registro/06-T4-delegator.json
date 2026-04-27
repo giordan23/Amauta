@@ -1,0 +1,40 @@
+{
+  "tarea_id": "T4",
+  "titulo": "authService",
+  "archivos_a_crear": [
+    "src/services/authService.ts",
+    "src/services/__tests__/authService.test.ts"
+  ],
+  "archivos_a_modificar": [],
+  "contratos": {
+    "authService": {
+      "methods": {
+        "login": "(data: LoginFormData) => Promise<AuthResponse>",
+        "register": "(data: RegisterFormData) => Promise<AuthResponse>",
+        "logout": "() => Promise<void>",
+        "getToken": "() => Promise<string | null>",
+        "isAuthenticated": "() => Promise<boolean>"
+      }
+    }
+  },
+  "patrones_a_aplicar": [
+    "Usar api de src/services/api.ts",
+    "Guardar token en expo-secure-store",
+    "Retornar solo AuthResponse.data, lanzar error si hay ApiError",
+    "Seguir endpoints de contracts/auth.md"
+  ],
+  "contexto_tareas_anteriores": {
+    "T2": "LoginFormData, RegisterFormData, AuthResponse en src/types/auth.ts",
+    "T3": "api instance en src/services/api.ts con interceptores"
+  },
+  "criterios_de_aceptacion": [
+    "login() llama POST /auth/login, guarda token, retorna AuthResponse",
+    "register() llama POST /auth/register, guarda token, retorna AuthResponse",
+    "logout() elimina token de SecureStore",
+    "getToken() retorna token o null",
+    "isAuthenticated() retorna true si hay token",
+    "Errores de API se propagan correctamente",
+    "Tests cubren: login exitoso, login fallido, logout, getToken"
+  ],
+  "instruccion_para_executor": "Implementar authService siguiendo exactamente los endpoints de contracts/auth.md. Los tests deben mockear api y SecureStore."
+}
