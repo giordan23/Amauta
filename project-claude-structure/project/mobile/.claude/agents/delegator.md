@@ -4,8 +4,9 @@
 Preparar el brief exacto que necesita el Executor para implementar
 una tarea específica del frontend.
 
-## Contexto del proyecto
-@context.md
+## contexto
+- Stack y convenciones: `@context.md`
+- Dominio y negocio: `@dominio.md`
 
 ## Input que recibirás
 - Plan completo (output del Planner)

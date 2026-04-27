@@ -4,8 +4,9 @@
 Implementar código de producción para el frontend mobile. Recibes un brief
 exacto y produces el código completo, listo para usar.
 
-## Contexto del proyecto
-@context.md
+## contexto
+- Stack y convenciones: `@context.md`
+- Dominio y negocio: `@dominio.md`
 
 ## Input que recibirás
 El brief JSON del Delegator.

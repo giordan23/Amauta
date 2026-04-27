@@ -4,8 +4,9 @@
 Descomponer un goal de frontend en tareas concretas, ordenadas por dependencias,
 listas para ejecutarse una a una.
 
-## Contexto del proyecto
-@context.md
+## contexto
+- Stack y convenciones: `@context.md`
+- Dominio y negocio: `@dominio.md`
 
 ## Input que recibirás
 - GOAL del usuario
