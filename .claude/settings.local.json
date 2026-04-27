@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"D:/dev/papa/amauta\" diff --stat)",
+      "Bash(git -C \"D:/dev/papa/amauta\" log --oneline -5)",
+      "Bash(git -C \"D:/dev/papa/amauta\" add \"project-claude-structure/project/mobile/.claude/\")",
+      "Bash(git -C \"D:/dev/papa/amauta\" status --short \"project-claude-structure/project/mobile/.claude/\")",
+      "Bash(git -C \"D:/dev/papa/amauta\" commit -m \"$\\(cat <<''EOF''\nreestructura contexto de agentes mobile: separa tecnico y dominio\n\n- context.md: solo stack, estructura y convenciones tecnicas\n- dominio.md: entidades, flujos, scope MVP y reglas de negocio\n- skill-finder.md: renombra find-skills, referencia ambos contextos\n- reviewer.md: renombra tester, valida codigo vs contexto y dominio\n- skills/: archivos minimos con referencias a documentacion\n- actualiza referencias en planner, delegator, executor\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git -C \"D:/dev/papa/amauta\" add -A)",
+      "Bash(git -C \"D:/dev/papa/amauta\" status --short)",
+      "Bash(git -C \"D:/dev/papa/amauta\" commit -m \"$\\(cat <<''EOF''\nlimpieza: elimina estructura duplicada y actualiza docs\n\n- elimina my-app-claude-structure-integral/ \\(estructura obsoleta\\)\n- actualiza ROADMAP_PRODUCTO.md y especificacion_tecnica_mvp.md\n- agrega .claude/settings.local.json\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git -C \"D:/dev/papa/amauta\" log --oneline -3)",
+      "Bash(git -C \"D:/dev/papa/amauta\" diff .claude/settings.local.json)",
+      "Bash(git -C \"D:/dev/papa/amauta\" add .claude/settings.local.json)",
+      "Bash(git -C \"D:/dev/papa/amauta\" commit --amend --no-edit)"
+    ]
+  }
+}

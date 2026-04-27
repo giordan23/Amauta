@@ -38,7 +38,7 @@ UNMSM · UNSAAC · UNI
 
 ### 📦 Entregable
 
-App web funcional con banco de preguntas sembrado manualmente por el equipo.
+App mobile funcional con banco de preguntas sembrado manualmente por el equipo.
 
 ---
 
