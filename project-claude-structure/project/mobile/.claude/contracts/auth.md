@@ -5,6 +5,55 @@
 
 ## Endpoints
 
+### POST /api/v1/auth/register
+**Propósito:** Crear nueva cuenta de usuario
+
+**Request:**
+```json
+{
+  "email": "string (email válido)",
+  "password": "string (mínimo 8 caracteres)"
+}
+```
+
+**Response exitoso (201):**
+```json
+{
+  "data": {
+    "access_token": "string (JWT de Supabase)",
+    "user": {
+      "id": "string (UUID)",
+      "email": "string"
+    }
+  },
+  "error": null
+}
+```
+
+**Response error email duplicado (409):**
+```json
+{
+  "data": null,
+  "error": {
+    "code": "EMAIL_ALREADY_EXISTS",
+    "message": "El email ya está registrado"
+  }
+}
+```
+
+**Response error validación (400):**
+```json
+{
+  "data": null,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "string descriptivo"
+  }
+}
+```
+
+---
+
 ### POST /api/v1/auth/login
 **Propósito:** Autenticar usuario con email y password
 

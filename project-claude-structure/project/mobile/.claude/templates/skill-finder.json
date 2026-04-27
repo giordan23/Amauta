@@ -1,0 +1,26 @@
+{
+  "goal": "",
+  "dominio": "auth | onboarding | simulacro | resultados | admin",
+  "skills": [
+    {
+      "file": "skills/react-native-*.md",
+      "razon": ""
+    }
+  ],
+  "librerias": [
+    {
+      "nombre": "",
+      "uso": "",
+      "en_stack": true
+    }
+  ],
+  "patrones": [
+    {
+      "nombre": "",
+      "descripcion": ""
+    }
+  ],
+  "entidades": [],
+  "riesgos": [],
+  "notas": ""
+}

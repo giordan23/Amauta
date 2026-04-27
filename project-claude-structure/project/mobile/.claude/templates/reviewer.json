@@ -1,0 +1,17 @@
+{
+  "tarea_id": "T1",
+  "veredicto": "APROBADO | RECHAZADO",
+  "resumen": "",
+  "items_aprobados": [],
+  "items_rechazados": [
+    {
+      "archivo": "",
+      "linea": 0,
+      "categoria": "convenciones | correctitud | dominio | tests",
+      "problema": "",
+      "correccion": ""
+    }
+  ],
+  "instruccion_para_executor": "",
+  "notas": ""
+}
