@@ -1,0 +1,198 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelo de usuario (complementa Supabase Auth)
+model User {
+  id        String   @id @db.Uuid // Matches Supabase auth.users.id
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Profile information
+  firstName String?
+  lastName  String?
+  country   String?
+  
+  // Universidad objetivo
+  targetUniversityId String?
+  targetUniversity   University? @relation(fields: [targetUniversityId], references: [id])
+  
+  // Onboarding
+  hasCompletedOnboarding Boolean @default(false)
+  
+  // Relaciones
+  examAttempts ExamAttempt[]
+  
+  @@map("users")
+}
+
+// Universidades del Perú
+model University {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  shortName String   @unique // UNMSM, UNI, UNSAAC
+  city      String
+  region    String
+  country   String   @default("Peru")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  questions    Question[]
+  users        User[]
+  examAttempts ExamAttempt[]
+
+  @@map("universities")
+}
+
+// Áreas de conocimiento
+model Subject {
+  id          String   @id @default(cuid())
+  name        String   @unique // Matemática, Comunicación, etc.
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  questions Question[]
+
+  @@map("subjects")
+}
+
+// Carreras universitarias
+model Career {
+  id        String   @id @default(cuid())
+  name      String   @unique // Medicina, Ingeniería de Sistemas, etc.
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  questions Question[]
+
+  @@map("careers")
+}
+
+// Preguntas del examen
+model Question {
+  id           String         @id @default(cuid())
+  text         String         // Enunciado de la pregunta
+  imageUrl     String?        // URL de imagen (opcional)
+  difficulty   DifficultyLevel
+  examYear     Int?           // Año del examen
+  examPeriod   String?        // "2023-I", "2023-II", etc.
+  explanation  String?        // Explicación de la respuesta (futuro)
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  // Relaciones
+  universityId String
+  university   University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  
+  subjectId String
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  
+  careerId String
+  career   Career @relation(fields: [careerId], references: [id], onDelete: Cascade)
+
+  // Opciones múltiples
+  options Question_Option[]
+  
+  // Respuestas de estudiantes
+  studentAnswers StudentAnswer[]
+
+  @@map("questions")
+}
+
+// Opciones de respuesta múltiple
+model Question_Option {
+  id         String  @id @default(cuid())
+  text       String  // Texto de la opción
+  isCorrect  Boolean @default(false)
+  orderIndex Int     // A=0, B=1, C=2, D=3, E=4
+
+  // Relaciones
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  // Respuestas de estudiantes
+  studentAnswers StudentAnswer[]
+
+  @@unique([questionId, orderIndex]) // No duplicar orden en la misma pregunta
+  @@map("question_options")
+}
+
+// Intento de examen (simulacro)
+model ExamAttempt {
+  id          String            @id @default(cuid())
+  status      ExamAttemptStatus @default(IN_PROGRESS)
+  score       Float?            // Puntaje final (0-20 o 0-100)
+  totalQuestions Int
+  correctAnswers Int           @default(0)
+  startedAt   DateTime         @default(now())
+  completedAt DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  // Configuración del simulacro
+  universityId String
+  university   University @relation(fields: [universityId], references: [id])
+  
+  subjectIds   String[] // Array de IDs de materias seleccionadas
+  careerIds    String[] // Array de IDs de carreras seleccionadas
+  difficulty   DifficultyLevel?
+  examYears    Int[]    // Años de exámenes seleccionados
+
+  // Relaciones
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  studentAnswers StudentAnswer[]
+
+  @@map("exam_attempts")
+}
+
+// Respuesta del estudiante a una pregunta específica
+model StudentAnswer {
+  id           String   @id @default(cuid())
+  isCorrect    Boolean  @default(false)
+  answeredAt   DateTime @default(now())
+
+  // Relaciones
+  examAttemptId String
+  examAttempt   ExamAttempt @relation(fields: [examAttemptId], references: [id], onDelete: Cascade)
+  
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  selectedOptionId String?
+  selectedOption   Question_Option? @relation(fields: [selectedOptionId], references: [id], onDelete: SetNull)
+
+  @@unique([examAttemptId, questionId]) // Una respuesta por pregunta por intento
+  @@map("student_answers")
+}
+
+// Enums
+enum DifficultyLevel {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum ExamAttemptStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}

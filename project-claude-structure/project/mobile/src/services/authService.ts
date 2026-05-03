@@ -6,32 +6,54 @@ const TOKEN_KEY = 'access_token';
 
 export const authService = {
   login: async (data: LoginFormData): Promise<AuthResponse> => {
-    // Mock para demo - reemplazar con API real
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    if (data.email === 'demo@example.com' && data.password === '12345678') {
-      const authData = {
-        access_token: 'mock-token-' + Date.now(),
-        user: { id: '1', email: data.email }
-      };
-      await SecureStore.setItemAsync(TOKEN_KEY, authData.access_token);
-      return authData;
+    const response = await api.post<{ data: AuthResponse; error: null } | { data: null; error: { code: string; message: string } } }>(
+      '/auth/login',
+      { email: data.email, password: data.password }
+    );
+
+    if (response.data.error) {
+      throw new Error(response.data.error.message);
     }
-    throw new Error('Email o contraseña incorrectos');
+
+    if (!response.data.data) {
+      throw new Error('Login failed');
+    }
+
+    const { access_token, user } = response.data.data;
+    await SecureStore.setItemAsync(TOKEN_KEY, access_token);
+    return { access_token, user };
   },
 
   register: async (data: RegisterFormData): Promise<AuthResponse> => {
-    // Mock para demo
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    const authData = {
-      access_token: 'mock-token-' + Date.now(),
-      user: { id: '2', email: data.email }
-    };
-    await SecureStore.setItemAsync(TOKEN_KEY, authData.access_token);
-    return authData;
+    const response = await api.post<{ data: AuthResponse; error: null } | { data: null; error: { code: string; message: string } } }>(
+      '/auth/register',
+      {
+        email: data.email,
+        password: data.password,
+        firstName: data.firstName,
+        lastName: data.lastName
+      }
+    );
+
+    if (response.data.error) {
+      throw new Error(response.data.error.message);
+    }
+
+    if (!response.data.data) {
+      throw new Error('Registration failed');
+    }
+
+    const { access_token, user } = response.data.data;
+    await SecureStore.setItemAsync(TOKEN_KEY, access_token);
+    return { access_token, user };
   },
 
   logout: async (): Promise<void> => {
+    try {
+      await api.post('/auth/logout');
+    } catch (error) {
+      // Ignore logout errors
+    }
     await SecureStore.deleteItemAsync(TOKEN_KEY);
   },
 

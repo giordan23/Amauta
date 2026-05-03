@@ -16,14 +16,15 @@ export default function RegisterScreen() {
 
   const { control, handleSubmit, formState: { errors } } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { email: '', password: '', confirmPassword: '' },
+    defaultValues: { email: '', password: '', confirmPassword: '', firstName: '', lastName: '' },
   });
 
   const registerMutation = useMutation({
     mutationFn: authService.register,
     onSuccess: (data) => {
       setUser(data.user);
-      router.replace('/home');
+      // After registration, always go to onboarding
+      router.replace('/onboarding');
     },
     onError: (error: Error) => setApiError(error.message),
   });
@@ -40,6 +41,42 @@ export default function RegisterScreen() {
           <Text variant="headlineLarge" style={styles.title}>Crear Cuenta</Text>
           
           <View style={styles.form}>
+            <Controller
+              control={control}
+              name="firstName"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    label="Nombres (opcional)"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    disabled={registerMutation.isPending}
+                    autoCapitalize="words"
+                    testID="firstName-input"
+                  />
+                </View>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="lastName"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    label="Apellidos (opcional)"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    disabled={registerMutation.isPending}
+                    autoCapitalize="words"
+                    testID="lastName-input"
+                  />
+                </View>
+              )}
+            />
+
             <Controller
               control={control}
               name="email"
@@ -98,7 +135,7 @@ export default function RegisterScreen() {
                     error={!!errors.confirmPassword}
                     disabled={registerMutation.isPending}
                     secureTextEntry
-                    testID="confirm-password-input"
+                    testID="confirmPassword-input"
                   />
                   <HelperText type="error" visible={!!errors.confirmPassword}>
                     {errors.confirmPassword?.message}
@@ -121,13 +158,13 @@ export default function RegisterScreen() {
               style={styles.button}
               testID="submit-button"
             >
-              Registrarse
+              Crear Cuenta
             </Button>
 
             <View style={styles.linkContainer}>
               <Text variant="bodyMedium">¿Ya tienes cuenta? </Text>
               <Link href="/auth/login" asChild>
-                <Text style={styles.link}>Iniciar sesión</Text>
+                <Text style={styles.link}>Iniciar Sesión</Text>
               </Link>
             </View>
           </View>

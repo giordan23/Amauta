@@ -3,20 +3,50 @@ import { View, StyleSheet } from 'react-native';
 import { ActivityIndicator, Text } from 'react-native-paper';
 import { router } from 'expo-router';
 import { useAuthStore } from '@/store/authStore';
+import { authService } from '@/services/authService';
 import { theme } from '@/theme';
 
 export default function IndexScreen() {
-  const { isAuthenticated, isLoading } = useAuthStore();
+  const { user, isAuthenticated, isLoading, setUser, setLoading } = useAuthStore();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        setLoading(true);
+        const token = await authService.getToken();
+        
+        if (!token) {
+          setUser(null);
+          router.replace('/auth/login');
+          return;
+        }
+
+        // Token exists, check if it's valid by trying to get user data
+        // For now, we'll assume the token is valid if it exists
+        // TODO: Call /users/me endpoint to validate token
+        setUser({ id: '1', email: 'demo@example.com', hasCompletedOnboarding: false });
+        
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkAuth();
+  }, [setUser, setLoading]);
 
   useEffect(() => {
     if (!isLoading) {
-      if (isAuthenticated) {
+      if (!isAuthenticated) {
+        router.replace('/auth/login');
+      } else if (user?.hasCompletedOnboarding) {
         router.replace('/home');
       } else {
-        router.replace('/auth/login');
+        router.replace('/onboarding');
       }
     }
-  }, [isAuthenticated, isLoading]);
+  }, [isAuthenticated, isLoading, user?.hasCompletedOnboarding]);
 
   return (
     <View style={styles.container}>

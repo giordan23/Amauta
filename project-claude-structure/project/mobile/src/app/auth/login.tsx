@@ -23,7 +23,11 @@ export default function LoginScreen() {
     mutationFn: authService.login,
     onSuccess: (data) => {
       setUser(data.user);
-      router.replace('/home');
+      if (data.user.hasCompletedOnboarding) {
+        router.replace('/home');
+      } else {
+        router.replace('/onboarding');
+      }
     },
     onError: (error: Error) => setApiError(error.message),
   });
