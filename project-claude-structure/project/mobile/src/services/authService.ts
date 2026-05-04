@@ -2,11 +2,12 @@ import * as SecureStore from 'expo-secure-store';
 import { api } from './api';
 import { LoginFormData, RegisterFormData, AuthResponse } from '@/types/auth';
 
-const TOKEN_KEY = 'access_token';
+const ACCESS_TOKEN_KEY = 'access_token';
+const REFRESH_TOKEN_KEY = 'refresh_token';
 
 export const authService = {
   login: async (data: LoginFormData): Promise<AuthResponse> => {
-    const response = await api.post<{ data: AuthResponse; error: null } | { data: null; error: { code: string; message: string } } }>(
+    const response = await api.post<{ data: AuthResponse; error: null } | ({ data: null; error: { code: string; message: string } })>(
       '/auth/login',
       { email: data.email, password: data.password }
     );
@@ -19,13 +20,16 @@ export const authService = {
       throw new Error('Login failed');
     }
 
-    const { access_token, user } = response.data.data;
-    await SecureStore.setItemAsync(TOKEN_KEY, access_token);
-    return { access_token, user };
+    const { access_token, user, refresh_token } = response.data.data;
+    await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, access_token);
+    if (refresh_token) {
+      await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refresh_token);
+    }
+    return { access_token, user, refresh_token };
   },
 
   register: async (data: RegisterFormData): Promise<AuthResponse> => {
-    const response = await api.post<{ data: { user: any; session: any; needsEmailConfirmation: boolean }; error: null } | { data: null; error: { code: string; message: string } } }>(
+    const response = await api.post<{ data: { user: any; session: any; needsEmailConfirmation: boolean }; error: null } | ({ data: null; error: { code: string; message: string } })>(
       '/auth/register',
       {
         email: data.email,
@@ -51,7 +55,11 @@ export const authService = {
       throw new Error('Registration failed: no access token');
     }
 
-    await SecureStore.setItemAsync(TOKEN_KEY, access_token);
+    const refresh_token = session?.refresh_token;
+    await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, access_token);
+    if (refresh_token) {
+      await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refresh_token);
+    }
     return { access_token, user: backendUser };
   },
 
@@ -61,40 +69,92 @@ export const authService = {
     } catch (error) {
       // Ignore logout errors
     }
-    await SecureStore.deleteItemAsync(TOKEN_KEY);
+    await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
+    await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
   },
 
   getToken: async (): Promise<string | null> => {
-    return SecureStore.getItemAsync(TOKEN_KEY);
+    return SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
+  },
+
+  getRefreshToken: async (): Promise<string | null> => {
+    return SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
   },
 
   isAuthenticated: async (): Promise<boolean> => {
-    const token = await SecureStore.getItemAsync(TOKEN_KEY);
+    const token = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
     return !!token;
   },
 
   // Restore session on app start - validate token with backend
   restoreSession: async (): Promise<{ access_token: string; user: any } | null> => {
-    const token = await SecureStore.getItemAsync(TOKEN_KEY);
+    const token = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
     if (!token) return null;
 
     try {
       // Try to get current user to validate token
-      const response = await api.get<{ data: { user: any }; error: null } | { data: null; error: { code: string; message: string } } }>(
+      const response = await api.get<{ data: { user: any }; error: null } | ({ data: null; error: { code: string; message: string } })>(
         '/auth/me',
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (response.data.error) {
-        // Token invalid or expired
-        await SecureStore.deleteItemAsync(TOKEN_KEY);
+        // Token invalid or expired - try to refresh
+        const refreshed = await authService.refreshToken();
+        if (refreshed) {
+          return refreshed;
+        }
+        await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
+        await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
         return null;
       }
 
       return { access_token: token, user: response.data.data?.user || null };
     } catch (error) {
       // Network error or token invalid
-      await SecureStore.deleteItemAsync(TOKEN_KEY);
+      await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
+      await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+      return null;
+    }
+  },
+
+  // Refresh access token using refresh token
+  refreshToken: async (): Promise<{ access_token: string; user: any } | null> => {
+    const refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+    if (!refreshToken) return null;
+
+    try {
+      const response = await api.post<{ data: { session: any; user?: any }; error: null } | ({ data: null; error: { code: string; message: string } })>(
+        '/auth/refresh',
+        { refreshToken }
+      );
+
+      if (response.data.error || !response.data.data) {
+        return null;
+      }
+
+      const { session } = response.data.data;
+      const newAccessToken = session?.access_token;
+      const newRefreshToken = session?.refresh_token;
+
+      if (!newAccessToken) return null;
+
+      await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, newAccessToken);
+      if (newRefreshToken) {
+        await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, newRefreshToken);
+      }
+
+      // Get user data with new token
+      const userResponse = await api.get<{ data: { user: any }; error: null } | ({ data: null; error: { code: string; message: string } })>(
+        '/auth/me',
+        { headers: { Authorization: `Bearer ${newAccessToken}` } }
+      );
+
+      return {
+        access_token: newAccessToken,
+        user: userResponse.data.data?.user || null
+      };
+    } catch (error) {
       return null;
     }
   },

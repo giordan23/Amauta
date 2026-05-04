@@ -26,7 +26,7 @@ export interface UniversitiesResponse {
 
 export const universityService = {
   getUniversities: async (page: number = 1, limit: number = 20): Promise<UniversitiesResponse> => {
-    const response = await api.get<{ data: UniversitiesResponse; error: null } | { data: null; error: { code: string; message: string } } }>(
+    const response = await api.get<{ data: UniversitiesResponse; error: null } | ({ data: null; error: { code: string; message: string } })>(
       `/universities?page=${page}&limit=${limit}`
     );
 
@@ -44,7 +44,7 @@ export const universityService = {
   },
 
   getUniversityById: async (id: string): Promise<University> => {
-    const response = await api.get<{ data: { university: University }; error: null } | { data: null; error: { code: string; message: string } } }>(
+    const response = await api.get<{ data: { university: University }; error: null } | ({ data: null; error: { code: string; message: string } })>(
       `/universities/${id}`
     );
 

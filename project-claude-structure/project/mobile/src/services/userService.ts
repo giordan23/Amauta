@@ -17,7 +17,7 @@ export interface UserProfile extends User {
 
 export const userService = {
   completeOnboarding: async (data: OnboardingData): Promise<{ user: UserProfile }> => {
-    const response = await api.post<{ data: { user: UserProfile }; error: null } | { data: null; error: { code: string; message: string } } }>(
+    const response = await api.post<{ data: { user: UserProfile }; error: null } | ({ data: null; error: { code: string; message: string } })>(
       '/users/complete-onboarding',
       data
     );
@@ -34,7 +34,7 @@ export const userService = {
   },
 
   updateProfile: async (data: Partial<UserProfile>): Promise<{ user: UserProfile }> => {
-    const response = await api.put<{ data: { user: UserProfile }; error: null } | { data: null; error: { code: string; message: string } } }>(
+    const response = await api.put<{ data: { user: UserProfile }; error: null } | ({ data: null; error: { code: string; message: string } })>(
       '/users/profile',
       data
     );
@@ -51,7 +51,7 @@ export const userService = {
   },
 
   getProfile: async (): Promise<{ user: UserProfile }> => {
-    const response = await api.get<{ data: { user: UserProfile }; error: null } | { data: null; error: { code: string; message: string } } }>(
+    const response = await api.get<{ data: { user: UserProfile }; error: null } | ({ data: null; error: { code: string; message: string } })>(
       '/users/profile'
     );
 

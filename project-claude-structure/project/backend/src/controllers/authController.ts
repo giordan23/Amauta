@@ -128,6 +128,7 @@ class AuthController {
       res.json({
         data: {
           access_token: authData.session.access_token,
+          refresh_token: authData.session.refresh_token,
           user: {
             id: user.id,
             email: user.email,
