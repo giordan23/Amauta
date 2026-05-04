@@ -132,7 +132,7 @@ const startServer = async (): Promise<void> => {
     await database.connect()
     
     // Start HTTP server
-    app.listen(PORT, () => {
+    app.listen(Number(PORT), '0.0.0.0', () => {
       logInfo(`🚀 Server running on port ${PORT}`, {
         environment: process.env.NODE_ENV,
         apiVersion: API_VERSION,
