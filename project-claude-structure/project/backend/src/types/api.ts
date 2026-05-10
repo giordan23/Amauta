@@ -27,14 +27,15 @@ export const updateUserProfileSchema = z.object({
   firstName: z.string().min(1).optional(),
   lastName: z.string().min(1).optional(),
   country: z.string().min(1).optional(),
-  targetUniversityId: z.string().optional()
+  targetUniversityId: z.string().optional(),
+  targetCareerId: z.string().optional()
 })
 
 export const completeOnboardingSchema = z.object({
   country: z.string().min(1, 'Country is required'),
   targetUniversityId: z.string().min(1, 'Target university is required'),
-  firstName: z.string().min(1, 'First name is required').optional(),
-  lastName: z.string().min(1, 'Last name is required').optional()
+  firstName: z.string().optional().nullable().transform(v => v ?? ''),
+  lastName: z.string().optional().nullable().transform(v => v ?? '')
 })
 
 export type UpdateUserProfileRequest = z.infer<typeof updateUserProfileSchema>

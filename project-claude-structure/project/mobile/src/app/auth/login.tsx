@@ -5,14 +5,19 @@ import { Link, router } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { theme } from '@/theme';
+import { useTheme } from '@/theme/ThemeContext';
 import { loginSchema, LoginFormData } from '@/types/auth';
 import { authService } from '@/services/authService';
 import { useAuthStore } from '@/store/authStore';
 
+export const LoginScreenOptions = {
+  title: 'Iniciar Sesión',
+} as const;
+
 export default function LoginScreen() {
   const [apiError, setApiError] = useState<string | null>(null);
   const setUser = useAuthStore((state) => state.setUser);
+  const theme = useTheme();
 
   const { control, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -38,10 +43,10 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.content}>
-          <Text variant="headlineLarge" style={styles.title}>Iniciar Sesión</Text>
+          <Text variant="headlineLarge" style={[styles.title, { color: theme.colors.text }]}>Iniciar Sesión</Text>
           
           <View style={styles.form}>
             <Controller
@@ -59,6 +64,7 @@ export default function LoginScreen() {
                     keyboardType="email-address"
                     autoCapitalize="none"
                     testID="email-input"
+                    mode="outlined"
                   />
                   <HelperText type="error" visible={!!errors.email}>
                     {errors.email?.message}
@@ -81,6 +87,7 @@ export default function LoginScreen() {
                     disabled={loginMutation.isPending}
                     secureTextEntry
                     testID="password-input"
+                    mode="outlined"
                   />
                   <HelperText type="error" visible={!!errors.password}>
                     {errors.password?.message}
@@ -107,9 +114,9 @@ export default function LoginScreen() {
             </Button>
 
             <View style={styles.linkContainer}>
-              <Text variant="bodyMedium">¿No tienes cuenta? </Text>
+              <Text variant="bodyMedium" style={{ color: theme.colors.textSecondary }}>¿No tienes cuenta? </Text>
               <Link href="/auth/register" asChild>
-                <Text style={styles.link}>Crear cuenta</Text>
+                <Text style={[styles.link, { color: theme.colors.primary }]}>Crear cuenta</Text>
               </Link>
             </View>
           </View>
@@ -120,14 +127,14 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: theme.colors.background },
+  container: { flex: 1 },
   scrollContent: { flexGrow: 1 },
-  content: { flex: 1, padding: theme.spacing.lg, justifyContent: 'center' },
-  title: { textAlign: 'center', marginBottom: theme.spacing.xl, color: theme.colors.text },
-  form: { gap: theme.spacing.sm },
-  inputContainer: { marginBottom: theme.spacing.xs },
+  content: { flex: 1, padding: 20, justifyContent: 'center' },
+  title: { textAlign: 'center', marginBottom: 24 },
+  form: { gap: 4 },
+  inputContainer: { marginBottom: 4 },
   apiError: { textAlign: 'center' },
-  button: { marginTop: theme.spacing.md },
-  linkContainer: { flexDirection: 'row', justifyContent: 'center', marginTop: theme.spacing.lg },
-  link: { color: theme.colors.primary, fontWeight: '600' },
+  button: { marginTop: 16 },
+  linkContainer: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
+  link: { fontWeight: '600' },
 });

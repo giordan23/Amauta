@@ -10,6 +10,57 @@ import { logInfo, logError } from '@/utils/logger'
 import { CustomError } from '@/middleware/errorHandler'
 
 class UserController {
+  // Get current user profile
+  async getMe(req: Request, res: Response): Promise<void> {
+    try {
+      if (!req.user?.id) {
+        throw new CustomError('User not authenticated', 401, 'NOT_AUTHENTICATED')
+      }
+
+      const user = await prisma.user.findUnique({
+        where: { id: req.user.id },
+        include: {
+          targetUniversity: true,
+          targetCareer: true
+        }
+      })
+
+      if (!user) {
+        throw new CustomError('User not found', 404, 'USER_NOT_FOUND')
+      }
+
+      res.json({
+        data: {
+          user: {
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            country: user.country,
+            hasCompletedOnboarding: user.hasCompletedOnboarding,
+            targetUniversity: user.targetUniversity,
+            targetCareer: user.targetCareer,
+            updatedAt: user.updatedAt
+          }
+        },
+        error: null
+      })
+    } catch (error) {
+      if (error instanceof CustomError) {
+        res.status(error.statusCode).json({
+          data: null,
+          error: { code: error.code, message: error.message }
+        })
+      } else {
+        logError('Get me error', error)
+        res.status(500).json({
+          data: null,
+          error: { code: 'GET_ME_ERROR', message: 'Failed to get profile' }
+        })
+      }
+    }
+  }
+
   // Update user profile
   async updateProfile(req: Request, res: Response): Promise<void> {
     try {
@@ -26,7 +77,8 @@ class UserController {
           updatedAt: new Date()
         },
         include: {
-          targetUniversity: true
+          targetUniversity: true,
+          targetCareer: true
         }
       })
 
@@ -42,6 +94,7 @@ class UserController {
             country: updatedUser.country,
             hasCompletedOnboarding: updatedUser.hasCompletedOnboarding,
             targetUniversity: updatedUser.targetUniversity,
+            targetCareer: updatedUser.targetCareer,
             updatedAt: updatedUser.updatedAt
           }
         },
@@ -94,7 +147,8 @@ class UserController {
           updatedAt: new Date()
         },
         include: {
-          targetUniversity: true
+          targetUniversity: true,
+          targetCareer: true
         }
       })
 
@@ -114,6 +168,7 @@ class UserController {
             country: updatedUser.country,
             hasCompletedOnboarding: updatedUser.hasCompletedOnboarding,
             targetUniversity: updatedUser.targetUniversity,
+            targetCareer: updatedUser.targetCareer,
             updatedAt: updatedUser.updatedAt
           }
         },

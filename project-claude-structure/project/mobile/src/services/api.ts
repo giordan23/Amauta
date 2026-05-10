@@ -65,6 +65,18 @@ api.interceptors.response.use(
 
     if (error.response?.data?.error?.message) {
       message = error.response.data.error.message;
+    } else if (error.response?.data?.message) {
+      message = error.response.data.message;
+    } else if (error.response?.data?.error?.code === 'VALIDATION_ERROR') {
+      // Zod validation errors come back as { code, details, error }
+      const issues = error.response?.data?.error?.details?.[0];
+      if (issues?.message) {
+        message = issues.message;
+      } else if (issues?.path?.length) {
+        message = `Campo inválido: ${issues.path.join('.')}`;
+      } else {
+        message = 'Datos de formulario inválidos';
+      }
     } else if (error.code === 'ECONNABORTED') {
       message = 'La solicitud tardó demasiado';
     } else if (!error.response) {
@@ -83,7 +95,7 @@ api.interceptors.response.use(
     }
 
     // Return error with user-friendly message
-    const enhancedError = new Error(message);
+    const enhancedError = new Error(message) as Error & { statusCode?: number; code?: string };
     enhancedError.statusCode = error.response?.status;
     enhancedError.code = error.response?.data?.error?.code;
     return Promise.reject(enhancedError);

@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
+import { StatusBar } from 'expo-status-bar';
 import { Stack } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PaperProvider } from 'react-native-paper';
 import { useAuthStore } from '@/store/authStore';
-import { theme } from '@/theme';
+import { ThemeProvider, useTheme } from '@/theme/ThemeContext';
 import { authService } from '@/services/authService';
 
 const queryClient = new QueryClient({
@@ -12,11 +13,11 @@ const queryClient = new QueryClient({
   },
 });
 
-export default function RootLayout() {
+function RootLayoutContent() {
   const { setUser } = useAuthStore();
+  const theme = useTheme();
 
   useEffect(() => {
-    // Restore session on app start
     const restoreSession = async () => {
       const session = await authService.restoreSession();
       if (session?.user) {
@@ -24,13 +25,27 @@ export default function RootLayout() {
       }
     };
     restoreSession();
-  }, []);
+  }, [setUser]);
 
   return (
+    <PaperProvider theme={theme.paperTheme}>
+      <StatusBar style={theme.isDark ? 'light' : 'dark'} />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: theme.colors.background },
+        }}
+      />
+    </PaperProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
     <QueryClientProvider client={queryClient}>
-      <PaperProvider theme={{ colors: theme.colors }}>
-        <Stack screenOptions={{ headerShown: false }} />
-      </PaperProvider>
+      <ThemeProvider>
+        <RootLayoutContent />
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

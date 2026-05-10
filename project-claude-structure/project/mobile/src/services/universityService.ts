@@ -26,35 +26,23 @@ export interface UniversitiesResponse {
 
 export const universityService = {
   getUniversities: async (page: number = 1, limit: number = 20): Promise<UniversitiesResponse> => {
-    const response = await api.get<{ data: UniversitiesResponse; error: null } | ({ data: null; error: { code: string; message: string } })>(
-      `/universities?page=${page}&limit=${limit}`
-    );
+    const response = await api.get<{
+      data: UniversitiesResponse;
+      error: null;
+    }>(`/universities?page=${page}&limit=${limit}`);
 
-    if (response.data.error) {
-      throw new Error(response.data.error.message);
+    // Backend returns { data: { universities, pagination }, error: null }
+    if (response.data.data?.universities?.length > 0) {
+      return response.data.data;
     }
-
-    if (!response.data.data) {
-      throw new Error('Error al obtener universidades');
-    }
-
-    return response.data.data.universities.length > 0 
-      ? response.data.data 
-      : { universities: [], pagination: { page: 1, limit: 20, total: 0, totalPages: 0, hasNext: false, hasPrev: false } };
+    return { universities: [], pagination: { page: 1, limit: 20, total: 0, totalPages: 0, hasNext: false, hasPrev: false } };
   },
 
   getUniversityById: async (id: string): Promise<University> => {
-    const response = await api.get<{ data: { university: University }; error: null } | ({ data: null; error: { code: string; message: string } })>(
-      `/universities/${id}`
-    );
-
-    if (response.data.error) {
-      throw new Error(response.data.error.message);
-    }
-
-    if (!response.data.data) {
-      throw new Error('Universidad no encontrada');
-    }
+    const response = await api.get<{
+      success: boolean;
+      data: { university: University };
+    }>(`/universities/${id}`);
 
     return response.data.data.university;
   },

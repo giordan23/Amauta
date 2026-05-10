@@ -13,8 +13,8 @@ import userRoutes from '@/routes/users'
 import universityRoutes from '@/routes/universities'
 import subjectRoutes from '@/routes/subjects'
 import careerRoutes from '@/routes/careers'
+import examRoutes from '@/routes/exam'
 // import questionRoutes from '@/routes/questions'
-// import examRoutes from '@/routes/exams'
 
 // Load environment variables
 dotenv.config()
@@ -34,7 +34,7 @@ app.use(helmet())
 app.use(cors({
   origin: process.env.CORS_ORIGIN?.split(',') || [
     'http://localhost:19006',  // Expo default
-    'exp://192.168.1.*:19000'  // Expo LAN
+    'exp://172.29.208.*:19000'  // Expo LAN (subred WSL)
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
@@ -109,6 +109,7 @@ app.use(`/api/${API_VERSION}/users`, userRoutes)
 app.use(`/api/${API_VERSION}/universities`, universityRoutes)
 app.use(`/api/${API_VERSION}/subjects`, subjectRoutes)
 app.use(`/api/${API_VERSION}/careers`, careerRoutes)
+app.use(`/api/${API_VERSION}/exam`, examRoutes)
 // app.use(`/api/${API_VERSION}/questions`, questionRoutes)
 // app.use(`/api/${API_VERSION}/exams`, examRoutes)
 

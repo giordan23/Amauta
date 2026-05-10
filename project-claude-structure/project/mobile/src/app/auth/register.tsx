@@ -5,7 +5,7 @@ import { Link, router } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { theme } from '@/theme';
+import { useTheme } from '@/theme/ThemeContext';
 import { registerSchema, RegisterFormData } from '@/types/auth';
 import { authService } from '@/services/authService';
 import { useAuthStore } from '@/store/authStore';
@@ -13,6 +13,7 @@ import { useAuthStore } from '@/store/authStore';
 export default function RegisterScreen() {
   const [apiError, setApiError] = useState<string | null>(null);
   const setUser = useAuthStore((state) => state.setUser);
+  const theme = useTheme();
 
   const { control, handleSubmit, formState: { errors } } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -23,7 +24,6 @@ export default function RegisterScreen() {
     mutationFn: authService.register,
     onSuccess: (data) => {
       setUser(data.user);
-      // After registration, always go to onboarding
       router.replace('/onboarding');
     },
     onError: (error: Error) => setApiError(error.message),
@@ -35,10 +35,10 @@ export default function RegisterScreen() {
   };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.content}>
-          <Text variant="headlineLarge" style={styles.title}>Crear Cuenta</Text>
+          <Text variant="headlineLarge" style={[styles.title, { color: theme.colors.text }]}>Crear Cuenta</Text>
           
           <View style={styles.form}>
             <Controller
@@ -54,6 +54,7 @@ export default function RegisterScreen() {
                     disabled={registerMutation.isPending}
                     autoCapitalize="words"
                     testID="firstName-input"
+                    mode="outlined"
                   />
                 </View>
               )}
@@ -72,6 +73,7 @@ export default function RegisterScreen() {
                     disabled={registerMutation.isPending}
                     autoCapitalize="words"
                     testID="lastName-input"
+                    mode="outlined"
                   />
                 </View>
               )}
@@ -92,6 +94,7 @@ export default function RegisterScreen() {
                     keyboardType="email-address"
                     autoCapitalize="none"
                     testID="email-input"
+                    mode="outlined"
                   />
                   <HelperText type="error" visible={!!errors.email}>
                     {errors.email?.message}
@@ -114,6 +117,7 @@ export default function RegisterScreen() {
                     disabled={registerMutation.isPending}
                     secureTextEntry
                     testID="password-input"
+                    mode="outlined"
                   />
                   <HelperText type="error" visible={!!errors.password}>
                     {errors.password?.message}
@@ -136,6 +140,7 @@ export default function RegisterScreen() {
                     disabled={registerMutation.isPending}
                     secureTextEntry
                     testID="confirmPassword-input"
+                    mode="outlined"
                   />
                   <HelperText type="error" visible={!!errors.confirmPassword}>
                     {errors.confirmPassword?.message}
@@ -162,9 +167,9 @@ export default function RegisterScreen() {
             </Button>
 
             <View style={styles.linkContainer}>
-              <Text variant="bodyMedium">¿Ya tienes cuenta? </Text>
+              <Text variant="bodyMedium" style={{ color: theme.colors.textSecondary }}>¿Ya tienes cuenta? </Text>
               <Link href="/auth/login" asChild>
-                <Text style={styles.link}>Iniciar Sesión</Text>
+                <Text style={[styles.link, { color: theme.colors.primary }]}>Iniciar Sesión</Text>
               </Link>
             </View>
           </View>
@@ -175,14 +180,14 @@ export default function RegisterScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: theme.colors.background },
+  container: { flex: 1 },
   scrollContent: { flexGrow: 1 },
-  content: { flex: 1, padding: theme.spacing.lg, justifyContent: 'center' },
-  title: { textAlign: 'center', marginBottom: theme.spacing.xl, color: theme.colors.text },
-  form: { gap: theme.spacing.sm },
-  inputContainer: { marginBottom: theme.spacing.xs },
+  content: { flex: 1, padding: 20, justifyContent: 'center' },
+  title: { textAlign: 'center', marginBottom: 24 },
+  form: { gap: 4 },
+  inputContainer: { marginBottom: 4 },
   apiError: { textAlign: 'center' },
-  button: { marginTop: theme.spacing.md },
-  linkContainer: { flexDirection: 'row', justifyContent: 'center', marginTop: theme.spacing.lg },
-  link: { color: theme.colors.primary, fontWeight: '600' },
+  button: { marginTop: 16 },
+  linkContainer: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
+  link: { fontWeight: '600' },
 });

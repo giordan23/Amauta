@@ -3,7 +3,7 @@
 
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native", "windows"]
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -27,6 +27,10 @@ model User {
   // Universidad objetivo
   targetUniversityId String?
   targetUniversity   University? @relation(fields: [targetUniversityId], references: [id])
+  
+  // Carrera objetivo (determina las materias del examen)
+  targetCareerId String?
+  targetCareer   Career? @relation(fields: [targetCareerId], references: [id])
   
   // Onboarding
   hasCompletedOnboarding Boolean @default(false)
@@ -68,6 +72,7 @@ model Subject {
 
   // Relaciones
   questions Question[]
+  careerSubjects CareerSubject[]
 
   @@map("subjects")
 }
@@ -82,8 +87,25 @@ model Career {
 
   // Relaciones
   questions Question[]
+  careerSubjects CareerSubject[]
+  targetUsers User[]
 
   @@map("careers")
+}
+
+// Relación carrera-materia (configuración de qué materias entran en qué carrera)
+model CareerSubject {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  careerId  String
+  career    Career   @relation(fields: [careerId], references: [id], onDelete: Cascade)
+
+  subjectId String
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([careerId, subjectId])
+  @@map("career_subjects")
 }
 
 // Preguntas del examen

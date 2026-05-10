@@ -15,7 +15,14 @@ router.use(authenticateToken)
 router.use(ensureUserExists)
 
 /**
- * @route   PUT /api/v1/users/profile
+ * @route   GET /api/v1/users/me
+ * @desc    Get current user profile
+ * @access  Private
+ */
+router.get('/me', userController.getMe)
+
+/**
+ * @route   PUT /api/v1/users/me
  * @desc    Update user profile
  * @access  Private
  * @body    { firstName?: string, lastName?: string, country?: string, targetUniversityId?: string }

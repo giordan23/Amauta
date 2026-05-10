@@ -3,11 +3,12 @@ import { View, StyleSheet } from 'react-native';
 import { ActivityIndicator, Text } from 'react-native-paper';
 import { router } from 'expo-router';
 import { useAuthStore } from '@/store/authStore';
+import { useTheme } from '@/theme/ThemeContext';
 import { authService } from '@/services/authService';
-import { theme } from '@/theme';
 
 export default function IndexScreen() {
   const { user, isAuthenticated, isLoading, setUser, setLoading } = useAuthStore();
+  const theme = useTheme();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -21,10 +22,12 @@ export default function IndexScreen() {
           return;
         }
 
-        // Token exists, check if it's valid by trying to get user data
-        // For now, we'll assume the token is valid if it exists
-        // TODO: Call /users/me endpoint to validate token
-        setUser({ id: '1', email: 'demo@example.com', hasCompletedOnboarding: false });
+        const session = await authService.restoreSession();
+        if (session?.user) {
+          setUser(session.user);
+        } else {
+          setUser(null);
+        }
         
       } catch (error) {
         console.error('Auth check failed:', error);
@@ -49,9 +52,9 @@ export default function IndexScreen() {
   }, [isAuthenticated, isLoading, user?.hasCompletedOnboarding]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <ActivityIndicator size="large" color={theme.colors.primary} />
-      <Text variant="bodyMedium" style={styles.text}>
+      <Text variant="bodyMedium" style={[styles.text, { color: theme.colors.textSecondary }]}>
         Cargando...
       </Text>
     </View>
@@ -61,10 +64,9 @@ export default function IndexScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: theme.spacing.md,
+    gap: 16,
   },
-  text: { color: theme.colors.textSecondary },
+  text: {},
 });
