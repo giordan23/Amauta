@@ -148,7 +148,21 @@ router.post('/start', async (req: any, res: any) => {
 // Get exam history (must be before /:examAttemptId to avoid conflicts)
 router.get('/history', async (req: any, res: any) => {
   try {
-    const userId = req.user.id;
+    console.log('[HISTORY] ====== NEW REQUEST ======');
+    console.log('[HISTORY] IP:', req.ip, '| Origin:', req.get('Origin'));
+    console.log('[HISTORY] Auth header present:', !!req.headers.authorization);
+    console.log('[HISTORY] User on request:', req.user);
+    
+    const userId = req.user?.id;
+    if (!userId) {
+      console.log('[HISTORY] ERROR: No userId on request - auth middleware may have failed');
+      return res.status(401).json({
+        data: null,
+        error: { code: 'MISSING_TOKEN', message: 'Access token required' }
+      });
+    }
+
+    console.log('[HISTORY] Looking up exams for userId:', userId);
 
     const attempts = await prisma.examAttempt.findMany({
       where: { userId, status: { in: ['COMPLETED', 'ABANDONED'] } },
