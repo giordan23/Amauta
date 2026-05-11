@@ -31,11 +31,19 @@ const API_VERSION = process.env.API_VERSION || 'v1'
 app.use(helmet())
 
 // CORS configuration
+const CORS_ORIGINS = [
+  'http://localhost:19006',
+  'exp://172.29.208.*:19000',
+  'http://192.168.100.126:8081',
+  'http://192.168.100.126:19000',
+  'http://192.168.100.126:19001',
+  'http://192.168.100.153:19000',
+  'http://192.168.100.153:19006',
+  'http://192.168.100.153:8081',
+];
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN?.split(',') || [
-    'http://localhost:19006',  // Expo default
-    'exp://172.29.208.*:19000'  // Expo LAN (subred WSL)
-  ],
+  origin: process.env.CORS_ORIGIN?.split(',').concat(CORS_ORIGINS) || CORS_ORIGINS,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']

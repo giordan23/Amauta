@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { Text, Button, ActivityIndicator, Card } from 'react-native-paper';
+import { Text, Button, ActivityIndicator, Card, Modal, Portal } from 'react-native-paper';
 import { router } from 'expo-router';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTheme } from '@/theme/ThemeContext';
 import { universityService, University } from '@/services/universityService';
+import { careerService, Career } from '@/services/careerService';
 import { userService } from '@/services/userService';
 import { useAuthStore } from '@/store/authStore';
 
@@ -17,10 +18,19 @@ export default function OnboardingScreen() {
   const theme = useTheme();
   const [selectedCountry, setSelectedCountry] = useState<string>('PE');
   const [selectedUniversity, setSelectedUniversity] = useState<University | null>(null);
+  const [selectedCareer, setSelectedCareer] = useState<Career | null>(null);
+  const [showCareerModal, setShowCareerModal] = useState(false);
 
   const { data: universitiesData, isLoading: loadingUniversities } = useQuery({
     queryKey: ['universities'],
     queryFn: () => universityService.getUniversities(1, 50),
+  });
+
+  // Fetch careers when university changes
+  const { data: careersData, isLoading: loadingCareers } = useQuery({
+    queryKey: ['careers'],
+    queryFn: () => careerService.getCareers(),
+    enabled: !!selectedUniversity,
   });
 
   const onboardingMutation = useMutation({
@@ -36,16 +46,18 @@ export default function OnboardingScreen() {
 
   const handleCompleteOnboarding = () => {
     if (!selectedUniversity) return;
-    
+
     onboardingMutation.mutate({
       country: selectedCountry,
       targetUniversityId: selectedUniversity.id,
+      targetCareerId: selectedCareer?.id,
       firstName: user?.firstName,
       lastName: user?.lastName,
     });
   };
 
   const universities = universitiesData?.universities || [];
+  const careers = careersData || [];
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]} contentContainerStyle={styles.content}>
@@ -54,10 +66,11 @@ export default function OnboardingScreen() {
           ¡Bienvenido a Amauta! 🎓
         </Text>
         <Text variant="bodyLarge" style={[styles.subtitle, { color: theme.colors.textSecondary }]}>
-          Para continuar, elige tu universidad objetivo
+          Para continuar, elige tu universidad y carrera objetivo
         </Text>
       </View>
 
+      {/* Country Selection */}
       <View style={styles.section}>
         <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.text }]}>
           País
@@ -87,6 +100,7 @@ export default function OnboardingScreen() {
         </View>
       </View>
 
+      {/* University Selection */}
       <View style={styles.section}>
         <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.text }]}>
           Universidad objetivo
@@ -98,13 +112,20 @@ export default function OnboardingScreen() {
             {universities.map((uni) => (
               <TouchableOpacity
                 key={uni.id}
-                onPress={() => setSelectedUniversity(uni)}
+                onPress={() => {
+                  setSelectedUniversity(uni);
+                  setSelectedCareer(null); // Reset career when university changes
+                }}
               >
                 <Card
                   style={[
                     styles.universityCard,
                     { borderColor: theme.colors.outline },
-                    selectedUniversity?.id === uni.id && { borderColor: theme.colors.primary, borderWidth: 2, backgroundColor: theme.colors.primaryContainer },
+                    selectedUniversity?.id === uni.id && {
+                      borderColor: theme.colors.primary,
+                      borderWidth: 2,
+                      backgroundColor: theme.colors.primaryContainer,
+                    },
                   ]}
                   mode="outlined"
                 >
@@ -131,6 +152,97 @@ export default function OnboardingScreen() {
         )}
       </View>
 
+      {/* Career Selection */}
+      {selectedUniversity && (
+        <View style={styles.section}>
+          <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.text }]}>
+            Carrera objetivo
+          </Text>
+          <Text variant="bodySmall" style={[styles.sectionHint, { color: theme.colors.textSecondary }]}>
+            ¿Qué carrera te interesa? Esto ayuda a personalizar tu experiencia de estudio.
+          </Text>
+          {loadingCareers ? (
+            <ActivityIndicator size="large" color={theme.colors.primary} />
+          ) : (
+            <TouchableOpacity
+              style={[
+                styles.careerSelector,
+                { borderColor: theme.colors.outline, backgroundColor: theme.colors.surface },
+              ]}
+              onPress={() => setShowCareerModal(true)}
+            >
+              <View style={styles.careerSelectorContent}>
+                <Text
+                  variant="bodyMedium"
+                  style={[
+                    styles.careerSelectorText,
+                    { color: selectedCareer ? theme.colors.text : theme.colors.textSecondary },
+                  ]}
+                >
+                  {selectedCareer ? selectedCareer.name : 'Selecciona una carrera (opcional)'}
+                </Text>
+                <Text style={[styles.careerSelectorArrow, { color: theme.colors.textSecondary }]}>▼</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
+
+      {/* Career Modal */}
+      <Portal>
+        <Modal
+          visible={showCareerModal}
+          onDismiss={() => setShowCareerModal(false)}
+          contentContainerStyle={[styles.modalContent, { backgroundColor: theme.colors.surface }]}
+        >
+          <Text variant="titleLarge" style={[styles.modalTitle, { color: theme.colors.text }]}>
+            Selecciona tu carrera
+          </Text>
+          <ScrollView style={styles.modalScroll}>
+            <TouchableOpacity
+              style={[styles.modalOption, { borderColor: theme.colors.border }]}
+              onPress={() => {
+                setSelectedCareer(null);
+                setShowCareerModal(false);
+              }}
+            >
+              <Text variant="bodyMedium" style={{ color: theme.colors.text }}>
+                Sin preferencia (todas las materias)
+              </Text>
+              {!selectedCareer && <Text style={{ color: theme.colors.primary }}>✓</Text>}
+            </TouchableOpacity>
+            {careers.map((career) => (
+              <TouchableOpacity
+                key={career.id}
+                style={[
+                  styles.modalOption,
+                  { borderColor: theme.colors.border },
+                  selectedCareer?.id === career.id && {
+                    backgroundColor: theme.colors.primaryContainer,
+                    borderColor: theme.colors.primary,
+                  },
+                ]}
+                onPress={() => {
+                  setSelectedCareer(career);
+                  setShowCareerModal(false);
+                }}
+              >
+                <Text variant="bodyMedium" style={{ color: theme.colors.text }}>
+                  {career.name}
+                </Text>
+                {selectedCareer?.id === career.id && (
+                  <Text style={{ color: theme.colors.primary }}>✓</Text>
+                )}
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          <Button mode="text" onPress={() => setShowCareerModal(false)} style={styles.modalClose}>
+            Cerrar
+          </Button>
+        </Modal>
+      </Portal>
+
+      {/* Footer */}
       <View style={styles.footer}>
         <Button
           mode="contained"
@@ -160,6 +272,7 @@ const styles = StyleSheet.create({
   subtitle: { textAlign: 'center' },
   section: { marginBottom: 24 },
   sectionTitle: { marginBottom: 12 },
+  sectionHint: { marginBottom: 12 },
   countryContainer: { flexDirection: 'row', gap: 12 },
   countryOption: { paddingVertical: 8, paddingHorizontal: 20, borderRadius: 8, borderWidth: 1 },
   countryText: {},
@@ -169,8 +282,38 @@ const styles = StyleSheet.create({
   universityDetails: { marginTop: 2 },
   universityLocation: { marginTop: 2 },
   emptyText: { textAlign: 'center', padding: 20 },
+  careerSelector: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 16,
+  },
+  careerSelectorContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  careerSelectorText: {},
+  careerSelectorArrow: { fontSize: 12 },
   footer: { marginTop: 16 },
   button: { borderRadius: 8 },
   buttonContent: { paddingVertical: 8 },
   errorText: { textAlign: 'center', marginTop: 8 },
+  modalContent: {
+    margin: 20,
+    borderRadius: 12,
+    padding: 20,
+    maxHeight: '70%',
+  },
+  modalTitle: { marginBottom: 16, fontWeight: '600' },
+  modalScroll: { maxHeight: 400 },
+  modalOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  modalClose: { marginTop: 8 },
 });

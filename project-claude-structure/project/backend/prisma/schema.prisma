@@ -128,8 +128,8 @@ model Question {
   subjectId String
   subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   
-  careerId String
-  career   Career @relation(fields: [careerId], references: [id], onDelete: Cascade)
+  careerId String?
+  career   Career? @relation(fields: [careerId], references: [id], onDelete: Cascade)
 
   // Opciones múltiples
   options Question_Option[]

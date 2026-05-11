@@ -34,6 +34,7 @@ export const updateUserProfileSchema = z.object({
 export const completeOnboardingSchema = z.object({
   country: z.string().min(1, 'Country is required'),
   targetUniversityId: z.string().min(1, 'Target university is required'),
+  targetCareerId: z.string().optional().nullable(),
   firstName: z.string().optional().nullable().transform(v => v ?? ''),
   lastName: z.string().optional().nullable().transform(v => v ?? '')
 })

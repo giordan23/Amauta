@@ -40,6 +40,7 @@ export const userService = {
   completeOnboarding: async (data: {
     country: string;
     targetUniversityId: string;
+    targetCareerId?: string;
     firstName?: string;
     lastName?: string;
   }): Promise<{ user: UserProfile }> => {
