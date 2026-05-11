@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Button, Card, Avatar } from 'react-native-paper';
-import { router } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
+import { router, useFocusEffect } from 'expo-router';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTheme } from '@/theme/ThemeContext';
 import { useAuthStore } from '@/store/authStore';
 import { authService } from '@/services/authService';
@@ -12,15 +12,26 @@ export default function HomeScreen() {
   const { user, logout } = useAuthStore();
   const theme = useTheme();
   const [mounted, setMounted] = useState(false);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Refetch every time screen gains focus (after completing exam)
+  useFocusEffect(
+    useCallback(() => {
+      if (mounted) {
+        queryClient.invalidateQueries({ queryKey: ['examHistory'] });
+      }
+    }, [mounted, queryClient])
+  );
+
   const { data: history } = useQuery({
     queryKey: ['examHistory'],
     queryFn: examService.getExamHistory,
     enabled: mounted,
+    staleTime: 0,
   });
 
   const handleLogout = async () => {
