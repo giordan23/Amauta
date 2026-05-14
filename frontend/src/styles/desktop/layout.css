@@ -1,0 +1,159 @@
+/* =================================================
+   DESKTOP LAYOUT STYLES
+   Layout components optimized for desktop screens
+   ================================================= */
+
+@media (min-width: 768px) {
+  /* Desktop Authentication Layout */
+  .auth-layout-desktop {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: linear-gradient(
+      135deg,
+      var(--color-primary) 0%,
+      var(--primary-700) 50%,
+      var(--primary-800) 100%
+    );
+  }
+
+  .auth-hero-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: var(--space-12);
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .auth-hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+    opacity: 0.7;
+  }
+
+  .auth-hero-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    max-width: 400px;
+  }
+
+  .auth-form-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8);
+    background: var(--color-background);
+  }
+
+  /* Desktop Navigation */
+  .nav-desktop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-4) var(--space-8);
+    background: var(--color-surface-elevated);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Desktop Sidebar */
+  .sidebar-desktop {
+    width: 280px;
+    height: 100vh;
+    background: var(--color-surface-elevated);
+    border-right: 1px solid var(--color-border);
+    padding: var(--space-6);
+    overflow-y: auto;
+  }
+
+  /* Desktop Main Content */
+  .main-content-desktop {
+    flex: 1;
+    padding: var(--space-8);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* Desktop Form Container */
+  .form-container-desktop {
+    max-width: 480px;
+    width: 100%;
+    background: var(--color-surface-elevated);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-10);
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--color-border);
+  }
+
+  /* Desktop Grid Layouts */
+  .grid-desktop-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-6);
+  }
+
+  .grid-desktop-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-6);
+  }
+
+  .grid-desktop-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-6);
+  }
+
+  /* Desktop Card Layouts */
+  .card-desktop {
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-base);
+    transition: all var(--transition-base);
+  }
+
+  .card-desktop:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Large Desktop Optimizations */
+  .auth-layout-desktop {
+    grid-template-columns: 3fr 2fr;
+  }
+
+  .auth-hero-section {
+    padding: var(--space-16);
+  }
+
+  .form-container-desktop {
+    max-width: 520px;
+    padding: var(--space-12);
+  }
+
+  .main-content-desktop {
+    padding: var(--space-12);
+    max-width: 1400px;
+  }
+}
+
+@media (min-width: 1440px) {
+  /* Extra Large Desktop */
+  .main-content-desktop {
+    max-width: 1600px;
+    padding: var(--space-16);
+  }
+}

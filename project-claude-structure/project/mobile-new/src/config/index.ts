@@ -1,1 +1,0 @@
-export const API_URL = 'https://backapi.simulacroadmision.com/api/v1';
