@@ -4,12 +4,13 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Environment variables
+# Environment variables - TU CONFIG PERSONAL NO SE SUBE
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env.example  # las plantillas .env.example SÍ se suben, tu .env.local NO
 
 # Build outputs
 dist/

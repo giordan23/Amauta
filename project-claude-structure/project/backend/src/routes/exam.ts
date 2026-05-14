@@ -50,22 +50,28 @@ router.post('/start', async (req: any, res: any) => {
     }
 
     // Get random questions based on filters
-    // OR logic: question matches if it belongs to ANY selected subject OR ANY selected career
+    // Strategy: include questions that match ANY subject from the user OR any career from the user
+    // This ensures we don't get 0 questions when some subjects don't have careerId-specific questions
     const whereClause: any = {
       isActive: true,
       universityId,
     };
 
-    // Match subject OR career (liberal matching)
-    if (examSubjectIds.length > 0 && examCareerIds.length > 0) {
-      whereClause.OR = [
-        { subjectId: { in: examSubjectIds } },
-        { careerId: { in: examCareerIds } },
-      ];
-    } else if (examSubjectIds.length > 0) {
-      whereClause.subjectId = { in: examSubjectIds };
-    } else if (examCareerIds.length > 0) {
-      whereClause.careerId = { in: examCareerIds };
+    if (examSubjectIds.length > 0 || examCareerIds.length > 0) {
+      const conditions: any[] = [];
+      
+      // Add subject conditions (regardless of careerId)
+      if (examSubjectIds.length > 0) {
+        conditions.push({ subjectId: { in: examSubjectIds } });
+      }
+      
+      // Add career conditions (regardless of subject)
+      if (examCareerIds.length > 0) {
+        conditions.push({ careerId: { in: examCareerIds } });
+      }
+      
+      // Include questions matching ANY subject OR ANY career
+      whereClause.OR = conditions;
     }
 
     if (difficulty) {
@@ -139,6 +145,63 @@ router.post('/start', async (req: any, res: any) => {
   }
 });
 
+// Get exam history (must be before /:examAttemptId to avoid conflicts)
+router.get('/history', async (req: any, res: any) => {
+  try {
+    console.log('[HISTORY] ====== NEW REQUEST ======');
+    console.log('[HISTORY] IP:', req.ip, '| Origin:', req.get('Origin'));
+    console.log('[HISTORY] Auth header present:', !!req.headers.authorization);
+    console.log('[HISTORY] User on request:', req.user);
+    
+    const userId = req.user?.id;
+    if (!userId) {
+      console.log('[HISTORY] ERROR: No userId on request - auth middleware may have failed');
+      return res.status(401).json({
+        data: null,
+        error: { code: 'MISSING_TOKEN', message: 'Access token required' }
+      });
+    }
+
+    console.log('[HISTORY] Looking up exams for userId:', userId);
+
+    const attempts = await prisma.examAttempt.findMany({
+      where: { userId, status: { in: ['COMPLETED', 'ABANDONED'] } },
+      include: {
+        university: true,
+        studentAnswers: true,
+      },
+      orderBy: { startedAt: 'desc' },
+      take: 20,
+    });
+
+    const history = attempts.map((a) => ({
+      examAttempt: {
+        id: a.id,
+        status: a.status,
+        score: a.score,
+        totalQuestions: a.totalQuestions,
+        correctAnswers: a.correctAnswers,
+        startedAt: a.startedAt,
+        completedAt: a.completedAt,
+        university: a.university,
+        subjectIds: a.subjectIds,
+        careerIds: a.careerIds,
+        difficulty: a.difficulty,
+      },
+      answers: a.studentAnswers.map((sa) => ({
+        questionId: sa.questionId,
+        selectedOptionId: sa.selectedOptionId,
+        isCorrect: sa.isCorrect,
+      })),
+    }));
+
+    res.json({ success: true, data: history });
+  } catch (error) {
+    logError('Get exam history error', error);
+    res.status(500).json({ success: false, error: 'Error al obtener historial', code: 'HISTORY_ERROR' });
+  }
+});
+
 // Get exam attempt with questions (for in-progress exams)
 router.get('/:examAttemptId', async (req: any, res: any) => {
   try {
@@ -163,11 +226,20 @@ router.get('/:examAttemptId', async (req: any, res: any) => {
     }
 
     // Get questions for this exam (from subjectIds/careerIds/difficulty)
+    // Include careerId=null (general questions) too
+    // Get questions matching ANY subject OR ANY career (liberal matching)
+    const conditions: any[] = [];
+    if (examAttempt.subjectIds?.length) {
+      conditions.push({ subjectId: { in: examAttempt.subjectIds } });
+    }
+    if (examAttempt.careerIds?.length) {
+      conditions.push({ careerId: { in: examAttempt.careerIds } });
+    }
+
     const whereClause: any = {
       isActive: true,
       universityId: examAttempt.universityId,
-      subjectId: { in: examAttempt.subjectIds },
-      careerId: { in: examAttempt.careerIds },
+      ...(conditions.length > 0 ? { OR: conditions } : {}),
     };
 
     if (examAttempt.difficulty) {
@@ -434,49 +506,6 @@ router.post('/:examAttemptId/abandon', async (req: any, res: any) => {
     } else {
       res.status(500).json({ success: false, error: 'Error al abandonar el examen', code: 'ABANDON_EXAM_ERROR' });
     }
-  }
-});
-
-// Get exam history
-router.get('/history', async (req: any, res: any) => {
-  try {
-    const userId = req.user.id;
-
-    const attempts = await prisma.examAttempt.findMany({
-      where: { userId, status: { in: ['COMPLETED', 'ABANDONED'] } },
-      include: {
-        university: true,
-        studentAnswers: true,
-      },
-      orderBy: { startedAt: 'desc' },
-      take: 20,
-    });
-
-    const history = attempts.map((a) => ({
-      examAttempt: {
-        id: a.id,
-        status: a.status,
-        score: a.score,
-        totalQuestions: a.totalQuestions,
-        correctAnswers: a.correctAnswers,
-        startedAt: a.startedAt,
-        completedAt: a.completedAt,
-        university: a.university,
-        subjectIds: a.subjectIds,
-        careerIds: a.careerIds,
-        difficulty: a.difficulty,
-      },
-      answers: a.studentAnswers.map((sa) => ({
-        questionId: sa.questionId,
-        selectedOptionId: sa.selectedOptionId,
-        isCorrect: sa.isCorrect,
-      })),
-    }));
-
-    res.json({ success: true, data: history });
-  } catch (error) {
-    logError('Get exam history error', error);
-    res.status(500).json({ success: false, error: 'Error al obtener historial', code: 'HISTORY_ERROR' });
   }
 });
 

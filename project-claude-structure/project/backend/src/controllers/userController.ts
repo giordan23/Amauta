@@ -124,7 +124,7 @@ class UserController {
       }
 
       const validatedData: CompleteOnboardingRequest = completeOnboardingSchema.parse(req.body)
-      const { country, targetUniversityId, firstName, lastName } = validatedData
+      const { country, targetUniversityId, targetCareerId, firstName, lastName } = validatedData
 
       // Verify university exists
       const university = await prisma.university.findUnique({
@@ -135,12 +135,22 @@ class UserController {
         throw new CustomError('Invalid university selected', 400, 'INVALID_UNIVERSITY')
       }
 
+      // Verify career if provided
+      let career = null;
+      if (targetCareerId) {
+        career = await prisma.career.findUnique({ where: { id: targetCareerId } });
+        if (!career) {
+          throw new CustomError('Invalid career selected', 400, 'INVALID_CAREER');
+        }
+      }
+
       // Update user with onboarding data
       const updatedUser = await prisma.user.update({
         where: { id: req.user.id },
         data: {
           country,
           targetUniversityId,
+          targetCareerId: targetCareerId || null,
           firstName: firstName || undefined,
           lastName: lastName || undefined,
           hasCompletedOnboarding: true,
