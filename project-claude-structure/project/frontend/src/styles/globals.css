@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+:root {
+  /* Color System */
+  --color-primary: #6200EE;
+  --color-primary-container: #BB86FC;
+  --color-secondary: #03DAC6;
+  --color-background: #FFFFFF;
+  --color-surface: #F5F5F5;
+  --color-error: #B00020;
+  --color-on-primary: #FFFFFF;
+  --color-on-background: #1C1B1F;
+  --color-on-surface: #1C1B1F;
+  --color-outline: #79747E;
+  --color-success: #4CAF50;
+  
+  /* Dark mode variants */
+  --color-primary-dark: #BB86FC;
+  --color-primary-container-dark: #6200EE;
+  --color-secondary-dark: #03DAC6;
+  --color-background-dark: #121212;
+  --color-surface-dark: #1E1E1E;
+  --color-error-dark: #CF6679;
+  --color-on-primary-dark: #000000;
+  --color-on-background-dark: #E6E1E5;
+  --color-on-surface-dark: #E6E1E5;
+  --color-outline-dark: #938F99;
+  --color-success-dark: #81C784;
+  
+  /* Enhanced Spacing System */
+  --spacing-xs: 0.25rem;    /* 4px */
+  --spacing-sm: 0.5rem;     /* 8px */
+  --spacing-md: 0.75rem;    /* 12px */
+  --spacing-lg: 1rem;       /* 16px */
+  --spacing-xl: 1.5rem;     /* 24px */
+  --spacing-2xl: 2rem;      /* 32px */
+  --spacing-3xl: 3rem;      /* 48px */
+  --spacing-4xl: 4rem;      /* 64px */
+  
+  /* Container System */
+  --container-xs: 20rem;     /* 320px */
+  --container-sm: 24rem;     /* 384px */
+  --container-md: 28rem;     /* 448px */
+  --container-lg: 32rem;     /* 512px */
+  --container-xl: 36rem;     /* 576px */
+  --container-2xl: 42rem;    /* 672px */
+  --container-3xl: 48rem;    /* 768px */
+  --container-4xl: 56rem;    /* 896px */
+  --container-5xl: 64rem;    /* 1024px */
+  --container-6xl: 72rem;    /* 1152px */
+  --container-7xl: 80rem;    /* 1280px */
+  
+  /* Radius System */
+  --radius-sm: 0.375rem;    /* 6px */
+  --radius-md: 0.5rem;      /* 8px */
+  --radius-lg: 0.75rem;     /* 12px */
+  --radius-xl: 1rem;        /* 16px */
+  --radius-2xl: 1.5rem;     /* 24px */
+  --radius-3xl: 2rem;       /* 32px */
+}
+
+/* Targeted CSS reset - preserves natural text spacing */
+html, body, div, span, header, nav, main, section, article, aside, footer,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+button, input, select, textarea {
+  margin: 0;
+  padding: 0;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Preserve natural text spacing */
+p {
+  margin-bottom: 0.75rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+
+/* Improve default list spacing */
+ul, ol {
+  padding-left: 1.5rem;
+}
+
+li {
+  margin-bottom: 0.25rem;
+}
+
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-on-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100%;
+  min-height: 100vh;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
