@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Stack } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { PaperProvider } from 'react-native-paper';
+import { Platform } from 'react-native';
+// import { PaperProvider } from 'react-native-paper';
 import { useAuthStore } from '@/store/authStore';
 import { ThemeProvider, useTheme } from '@/theme/ThemeContext';
 import { authService } from '@/services/authService';
@@ -19,16 +20,20 @@ function RootLayoutContent() {
 
   useEffect(() => {
     const restoreSession = async () => {
-      const session = await authService.restoreSession();
-      if (session?.user) {
-        setUser(session.user);
+      try {
+        const session = await authService.restoreSession();
+        if (session?.user) {
+          setUser(session.user);
+        }
+      } catch {
+        // Storage no disponible en web, ignorar
       }
     };
     restoreSession();
   }, [setUser]);
 
   return (
-    <PaperProvider theme={theme.paperTheme}>
+    <>
       <StatusBar style={theme.isDark ? 'light' : 'dark'} />
       <Stack
         screenOptions={{
@@ -36,7 +41,7 @@ function RootLayoutContent() {
           contentStyle: { backgroundColor: theme.colors.background },
         }}
       />
-    </PaperProvider>
+    </>
   );
 }
 

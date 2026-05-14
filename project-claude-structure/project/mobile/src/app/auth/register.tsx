@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { Text, TextInput, Button, HelperText } from 'react-native-paper';
+import { Text, TextInput, Button, HelperText } from '@/components/PaperCompat';
 import { Link, router } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
   scrollContent: { flexGrow: 1 },
   content: { flex: 1, padding: 20, justifyContent: 'center' },
   title: { textAlign: 'center', marginBottom: 24 },
-  form: { gap: 4 },
+  form: { marginBottom: 4 },
   inputContainer: { marginBottom: 4 },
   apiError: { textAlign: 'center' },
   button: { marginTop: 16 },

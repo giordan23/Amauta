@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { Text, Button, Card } from 'react-native-paper';
+import { Text, Button, Card, CardContent } from '@/components/PaperCompat';
 import { router } from 'expo-router';
 import { useTheme } from '@/theme/ThemeContext';
 
@@ -31,7 +31,7 @@ export default function ExamResultsScreen() {
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]} contentContainerStyle={styles.content}>
       {/* Score Card */}
       <Card style={[styles.scoreCard, { backgroundColor: theme.colors.surface }]}>
-        <Card.Content style={styles.scoreContent}>
+        <CardContent style={styles.scoreContent}>
           <Text style={styles.emoji}>{message.emoji}</Text>
           <Text variant="headlineLarge" style={[styles.scoreText, { color: message.color }]}>
             {percentage}%
@@ -39,7 +39,7 @@ export default function ExamResultsScreen() {
           <Text variant="titleMedium" style={[styles.messageText, { color: theme.colors.textSecondary }]}>
             {message.text}
           </Text>
-        </Card.Content>
+        </CardContent>
       </Card>
 
       {/* Stats */}
@@ -68,7 +68,7 @@ export default function ExamResultsScreen() {
 
       {/* Score bar */}
       <Card style={[styles.detailCard, { backgroundColor: theme.colors.surface }]}>
-        <Card.Content>
+        <CardContent>
           <Text variant="titleMedium" style={[styles.detailTitle, { color: theme.colors.text }]}>
             Detalle del puntaje
           </Text>
@@ -78,7 +78,7 @@ export default function ExamResultsScreen() {
           <Text variant="bodySmall" style={[styles.scoreNote, { color: theme.colors.textSecondary }]}>
             Escala: 0-{total} respuestas correctas
           </Text>
-        </Card.Content>
+        </CardContent>
       </Card>
 
       {/* Actions */}
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   },
   scoreBar: { height: '100%', borderRadius: 6 },
   scoreNote: { marginTop: 8, textAlign: 'center' },
-  actionsContainer: { gap: 12 },
+  actionsContainer: { marginTop: 12 },
   button: { borderRadius: 8 },
   buttonContent: { paddingVertical: 8 },
 });

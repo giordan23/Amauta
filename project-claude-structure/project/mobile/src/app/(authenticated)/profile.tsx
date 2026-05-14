@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { Text, TextInput, Button, Card, Avatar, HelperText, Switch, List } from 'react-native-paper';
+import { Text, TextInput, Button, Card, Avatar, AvatarText, CardContent, HelperText, Switch } from '@/components/PaperCompat';
 import { router } from 'expo-router';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTheme, useAppTheme, type ThemeMode } from '@/theme/ThemeContext';
@@ -69,8 +69,8 @@ export default function ProfileScreen() {
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]} contentContainerStyle={styles.content}>
       {/* Profile Header */}
       <Card style={[styles.profileCard, { backgroundColor: theme.colors.surface }]}>
-        <Card.Content style={styles.profileContent}>
-          <Avatar.Text size={80} label={initials} style={[styles.avatar, { backgroundColor: theme.colors.primary }]} />
+        <CardContent style={styles.profileContent}>
+          <AvatarText size={80} label={initials} style={[styles.avatar, { backgroundColor: theme.colors.primary }]} />
           <Text variant="headlineSmall" style={[styles.email, { color: theme.colors.text }]}>
             {profile?.email || user?.email}
           </Text>
@@ -79,12 +79,12 @@ export default function ProfileScreen() {
               🎓 {profile.targetUniversity.shortName}
             </Text>
           )}
-        </Card.Content>
+        </CardContent>
       </Card>
 
       {/* Theme Settings */}
       <Card style={[styles.formCard, { backgroundColor: theme.colors.surface }]}>
-        <Card.Content>
+        <CardContent>
           <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.text }]}>
             Apariencia
           </Text>
@@ -106,12 +106,12 @@ export default function ProfileScreen() {
               </Button>
             ))}
           </View>
-        </Card.Content>
+        </CardContent>
       </Card>
 
       {/* Profile Form */}
       <Card style={[styles.formCard, { backgroundColor: theme.colors.surface }]}>
-        <Card.Content>
+        <CardContent>
           <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.text }]}>
             Información personal
           </Text>
@@ -163,12 +163,12 @@ export default function ProfileScreen() {
               Perfil actualizado correctamente
             </HelperText>
           )}
-        </Card.Content>
+        </CardContent>
       </Card>
 
       {/* Logout */}
       <Card style={[styles.logoutCard, { backgroundColor: theme.colors.surface }]}>
-        <Card.Content>
+        <CardContent>
           <Button
             mode="outlined"
             onPress={handleLogout}
@@ -177,7 +177,7 @@ export default function ProfileScreen() {
           >
             Cerrar Sesión
           </Button>
-        </Card.Content>
+        </CardContent>
       </Card>
     </ScrollView>
   );
@@ -195,7 +195,6 @@ const styles = StyleSheet.create({
   sectionTitle: { marginBottom: 12 },
   themeContainer: {
     flexDirection: 'row',
-    gap: 8,
   },
   themeButton: {
     flex: 1,
@@ -207,7 +206,7 @@ const styles = StyleSheet.create({
   },
   themeIcon: { fontSize: 16, marginRight: 4 },
   themeLabel: { fontSize: 13 },
-  form: { gap: 4 },
+  form: { marginBottom: 4 },
   inputContainer: { marginBottom: 4 },
   saveButton: { marginTop: 12, borderRadius: 8 },
   logoutCard: {},

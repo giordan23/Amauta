@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { Text, Button, Card, Avatar } from 'react-native-paper';
+import { Text, Button, Card, CardContent, Avatar, AvatarText } from '@/components/PaperCompat';
 import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTheme } from '@/theme/ThemeContext';
@@ -52,11 +52,10 @@ export default function HomeScreen() {
               ¿Qué quieres hacer hoy?
             </Text>
           </View>
-          <Avatar.Text
+          <AvatarText
             size={48}
             label={initials}
             style={[styles.avatar, { backgroundColor: theme.colors.primary }]}
-            onTouchEnd={() => router.push('/profile')}
           />
         </View>
       </View>
@@ -69,46 +68,42 @@ export default function HomeScreen() {
         <View style={styles.actionsGrid}>
           <Card
             style={[styles.actionCard, { backgroundColor: theme.colors.surface }]}
-            onPress={() => router.push('/exam/config')}
           >
-            <Card.Content style={styles.actionContent}>
+            <CardContent style={styles.actionContent}>
               <Text style={styles.actionIcon}>📝</Text>
               <Text variant="titleSmall" style={[styles.actionTitle, { color: theme.colors.text }]}>Nuevo Simulado</Text>
               <Text variant="bodySmall" style={[styles.actionDesc, { color: theme.colors.textSecondary }]}>Practica con preguntas</Text>
-            </Card.Content>
+            </CardContent>
           </Card>
 
           <Card
             style={[styles.actionCard, { backgroundColor: theme.colors.surface }]}
-            onPress={() => router.push('/exam/history')}
           >
-            <Card.Content style={styles.actionContent}>
+            <CardContent style={styles.actionContent}>
               <Text style={styles.actionIcon}>📊</Text>
               <Text variant="titleSmall" style={[styles.actionTitle, { color: theme.colors.text }]}>Ver Historial</Text>
               <Text variant="bodySmall" style={[styles.actionDesc, { color: theme.colors.textSecondary }]}>Revisa tus resultados</Text>
-            </Card.Content>
+            </CardContent>
           </Card>
 
           <Card
             style={[styles.actionCard, { backgroundColor: theme.colors.surface }]}
-            onPress={() => router.push('/profile')}
           >
-            <Card.Content style={styles.actionContent}>
+            <CardContent style={styles.actionContent}>
               <Text style={styles.actionIcon}>👤</Text>
               <Text variant="titleSmall" style={[styles.actionTitle, { color: theme.colors.text }]}>Mi Perfil</Text>
               <Text variant="bodySmall" style={[styles.actionDesc, { color: theme.colors.textSecondary }]}>Actualiza tus datos</Text>
-            </Card.Content>
+            </CardContent>
           </Card>
 
           <Card
             style={[styles.actionCard, { backgroundColor: theme.colors.surface }]}
-            onPress={() => router.push('/onboarding')}
           >
-            <Card.Content style={styles.actionContent}>
+            <CardContent style={styles.actionContent}>
               <Text style={styles.actionIcon}>🎓</Text>
               <Text variant="titleSmall" style={[styles.actionTitle, { color: theme.colors.text }]}>Universidad</Text>
               <Text variant="bodySmall" style={[styles.actionDesc, { color: theme.colors.textSecondary }]}>Cambia tu objetivo</Text>
-            </Card.Content>
+            </CardContent>
           </Card>
         </View>
       </View>
@@ -121,9 +116,8 @@ export default function HomeScreen() {
           </Text>
           <Card
             style={[styles.lastExamCard, { backgroundColor: theme.colors.surface }]}
-            onPress={() => router.push('/exam/history')}
           >
-            <Card.Content style={styles.lastExamContent}>
+            <CardContent style={styles.lastExamContent}>
               <View style={styles.lastExamInfo}>
                 <Text variant="headlineLarge" style={[
                   styles.lastExamScore,
@@ -136,7 +130,7 @@ export default function HomeScreen() {
                 </Text>
               </View>
               <Text style={[styles.lastExamArrow, { color: theme.colors.primary }]}>→</Text>
-            </Card.Content>
+            </CardContent>
           </Card>
         </View>
       )}
@@ -165,9 +159,9 @@ const styles = StyleSheet.create({
   avatar: {},
   section: { marginBottom: 24 },
   sectionTitle: { marginBottom: 12 },
-  actionsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+  actionsGrid: { flexDirection: 'row', flexWrap: 'wrap' },
   actionCard: { width: '47%' },
-  actionContent: { alignItems: 'center', paddingVertical: 16 },
+  actionContent: { alignItems: 'center', paddingVertical: 16, marginBottom: 12 },
   actionIcon: { fontSize: 32, marginBottom: 8 },
   actionTitle: { textAlign: 'center' },
   actionDesc: { textAlign: 'center', marginTop: 2 },

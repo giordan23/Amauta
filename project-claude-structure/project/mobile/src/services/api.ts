@@ -1,5 +1,5 @@
 import axios from 'axios';
-import * as SecureStore from 'expo-secure-store';
+import { storage } from './storage';
 import { API_URL } from '@/config';
 
 const ACCESS_TOKEN_KEY = 'access_token';
@@ -15,7 +15,7 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use(async (config) => {
-  const token = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
+  const token = await storage.getItemAsync(ACCESS_TOKEN_KEY);
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -32,7 +32,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+        const refreshToken = await storage.getItemAsync(REFRESH_TOKEN_KEY);
         if (refreshToken) {
           // Call refresh endpoint
           const refreshResponse = await axios.post(
@@ -43,9 +43,9 @@ api.interceptors.response.use(
 
           if (refreshResponse.data?.data?.session) {
             const { access_token, refresh_token } = refreshResponse.data.data.session;
-            await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, access_token);
+            await storage.setItemAsync(ACCESS_TOKEN_KEY, access_token);
             if (refresh_token) {
-              await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refresh_token);
+              await storage.setItemAsync(REFRESH_TOKEN_KEY, refresh_token);
             }
 
             // Retry original request with new token
@@ -55,8 +55,8 @@ api.interceptors.response.use(
         }
       } catch (refreshError) {
         // Refresh failed - clear tokens and reject
-        await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
-        await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+        await storage.deleteItemAsync(ACCESS_TOKEN_KEY);
+        await storage.deleteItemAsync(REFRESH_TOKEN_KEY);
       }
     }
 

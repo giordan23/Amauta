@@ -1,5 +1,5 @@
 import { View, StyleSheet, FlatList } from 'react-native';
-import { Text, Card, ActivityIndicator, Chip } from 'react-native-paper';
+import { Text, Card, CardContent, ActivityIndicator, Chip } from '@/components/PaperCompat';
 import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTheme } from '@/theme/ThemeContext';
@@ -29,19 +29,8 @@ export default function ExamHistoryScreen() {
     return (
       <Card
         style={[styles.card, { backgroundColor: theme.colors.surface }]}
-        onPress={() => {
-          router.push({
-            pathname: '/exam/results',
-            params: {
-              examAttemptId: item.examAttempt.id,
-              score: item.examAttempt.score || 0,
-              totalQuestions: item.examAttempt.totalQuestions,
-              correctAnswers: item.examAttempt.correctAnswers,
-            },
-          });
-        }}
       >
-        <Card.Content>
+        <CardContent>
           <View style={styles.cardHeader}>
             <Text variant="titleMedium" style={[styles.universityName, { color: theme.colors.text }]}>
               {item.examAttempt.university?.shortName || 'Universidad'}
@@ -79,7 +68,7 @@ export default function ExamHistoryScreen() {
               <Text variant="bodySmall" style={[styles.statLabel, { color: theme.colors.textSecondary }]}>Puntaje</Text>
             </View>
           </View>
-        </Card.Content>
+        </CardContent>
       </Card>
     );
   };

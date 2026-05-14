@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { Text, Button, ActivityIndicator, Chip } from 'react-native-paper';
+import { Text, Button, ActivityIndicator, Chip } from '@/components/PaperCompat';
 import { router } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTheme } from '@/theme/ThemeContext';
@@ -205,10 +205,10 @@ const styles = StyleSheet.create({
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 48 },
   section: { marginBottom: 24 },
   sectionTitle: { marginBottom: 12 },
-  chipsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  chipsContainer: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 4 },
   chip: { marginBottom: 4 },
-  difficultyContainer: { flexDirection: 'row', gap: 8 },
-  questionCountContainer: { flexDirection: 'row', gap: 8 },
+  difficultyContainer: { flexDirection: 'row', marginBottom: 4 },
+  questionCountContainer: { flexDirection: 'row', marginBottom: 4 },
   footer: { marginTop: 16 },
   button: { borderRadius: 8 },
   buttonContent: { paddingVertical: 8 },

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { Text, Button, ActivityIndicator, Card } from 'react-native-paper';
+import { Text, Button, ActivityIndicator, Card, CardContent } from '@/components/PaperCompat';
 import { router } from 'expo-router';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTheme } from '@/theme/ThemeContext';
@@ -100,26 +100,25 @@ export default function OnboardingScreen() {
                 key={uni.id}
                 onPress={() => setSelectedUniversity(uni)}
               >
-                <Card
-                  style={[
-                    styles.universityCard,
-                    { borderColor: theme.colors.outline },
-                    selectedUniversity?.id === uni.id && { borderColor: theme.colors.primary, borderWidth: 2, backgroundColor: theme.colors.primaryContainer },
-                  ]}
-                  mode="outlined"
-                >
-                  <Card.Content>
-                    <Text variant="titleMedium" style={[styles.universityName, { color: theme.colors.text }]}>
-                      {uni.shortName}
-                    </Text>
-                    <Text variant="bodySmall" style={[styles.universityDetails, { color: theme.colors.textSecondary }]}>
-                      {uni.name}
-                    </Text>
-                    <Text variant="bodySmall" style={[styles.universityLocation, { color: theme.colors.textSecondary }]}>
-                      {uni.city}, {uni.region}
-                    </Text>
-                  </Card.Content>
-                </Card>
+              <Card
+                style={[
+                  styles.universityCard,
+                  { borderColor: theme.colors.outline },
+                  selectedUniversity?.id === uni.id && { borderColor: theme.colors.primary, borderWidth: 2, backgroundColor: theme.colors.primaryContainer },
+                ]}
+              >
+                <CardContent>
+                  <Text variant="titleMedium" style={[styles.universityName, { color: theme.colors.text }]}>
+                    {uni.shortName}
+                  </Text>
+                  <Text variant="bodySmall" style={[styles.universityDetails, { color: theme.colors.textSecondary }]}>
+                    {uni.name}
+                  </Text>
+                  <Text variant="bodySmall" style={[styles.universityLocation, { color: theme.colors.textSecondary }]}>
+                    {uni.city}, {uni.region}
+                  </Text>
+                </CardContent>
+              </Card>
               </TouchableOpacity>
             ))}
             {universities.length === 0 && (
@@ -160,10 +159,10 @@ const styles = StyleSheet.create({
   subtitle: { textAlign: 'center' },
   section: { marginBottom: 24 },
   sectionTitle: { marginBottom: 12 },
-  countryContainer: { flexDirection: 'row', gap: 12 },
+  countryContainer: { flexDirection: 'row' },
   countryOption: { paddingVertical: 8, paddingHorizontal: 20, borderRadius: 8, borderWidth: 1 },
   countryText: {},
-  universitiesContainer: { gap: 12 },
+  universitiesContainer: { marginTop: 12 },
   universityCard: {},
   universityName: { fontWeight: '600' },
   universityDetails: { marginTop: 2 },

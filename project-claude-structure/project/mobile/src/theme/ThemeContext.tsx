@@ -1,9 +1,11 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useColorScheme } from 'react-native';
-import { MD3DarkTheme, MD3LightTheme, adaptNavigationTheme } from 'react-native-paper';
+import { useColorScheme, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { lightColors, darkColors, type Colors } from './colors';
 import { spacing, type Spacing } from './spacing';
+
+// Paper theme types - only imported on native to avoid web bundling issues
+type PaperTheme = Record<string, unknown>;
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 
@@ -12,62 +14,66 @@ export interface AppTheme {
   colors: Colors;
   spacing: Spacing;
   isDark: boolean;
-  paperTheme: typeof MD3LightTheme | typeof MD3DarkTheme;
+  paperTheme: PaperTheme;
 }
 
 const THEME_STORAGE_KEY = '@amauta_theme_mode';
 
-// Light Paper theme
-const lightPaperTheme = {
-  ...MD3LightTheme,
-  colors: {
-    ...MD3LightTheme.colors,
-    primary: lightColors.primary,
-    primaryContainer: lightColors.primaryContainer,
-    secondary: lightColors.secondary,
-    background: lightColors.background,
-    surface: lightColors.surface,
-    surfaceVariant: lightColors.surfaceVariant,
-    error: lightColors.error,
-    onPrimary: lightColors.onPrimary,
-    onSurface: lightColors.onSurface,
-    onSurfaceVariant: lightColors.onSurfaceVariant,
-    outline: lightColors.outline,
-    inverseSurface: lightColors.inverseSurface,
-    inverseOnSurface: lightColors.inverseOnSurface,
-    inversePrimary: lightColors.inversePrimary,
-    shadow: lightColors.shadow,
-    scrim: lightColors.scrim,
-    backdrop: lightColors.backdrop,
-    elevation: lightColors.elevation,
-  },
-};
-
-// Dark Paper theme
-const darkPaperTheme = {
-  ...MD3DarkTheme,
-  colors: {
-    ...MD3DarkTheme.colors,
-    primary: darkColors.primary,
-    primaryContainer: darkColors.primaryContainer,
-    secondary: darkColors.secondary,
-    background: darkColors.background,
-    surface: darkColors.surface,
-    surfaceVariant: darkColors.surfaceVariant,
-    error: darkColors.error,
-    onPrimary: darkColors.onPrimary,
-    onSurface: darkColors.onSurface,
-    onSurfaceVariant: darkColors.onSurfaceVariant,
-    outline: darkColors.outline,
-    inverseSurface: darkColors.inverseSurface,
-    inverseOnSurface: darkColors.inverseOnSurface,
-    inversePrimary: darkColors.inversePrimary,
-    shadow: darkColors.shadow,
-    scrim: darkColors.scrim,
-    backdrop: darkColors.backdrop,
-    elevation: darkColors.elevation,
-  },
-};
+// Light/Dark paper themes - loaded lazily on native only
+function getNativePaperThemes() {
+  if (Platform.OS === 'web') return { lightPaperTheme: {}, darkPaperTheme: {} };
+  // Dynamic require to keep paper out of web bundle
+  const { MD3DarkTheme, MD3LightTheme } = require('react-native-paper');
+  const lightPaperTheme = {
+    ...MD3LightTheme,
+    colors: {
+      ...MD3LightTheme.colors,
+      primary: lightColors.primary,
+      primaryContainer: lightColors.primaryContainer,
+      secondary: lightColors.secondary,
+      background: lightColors.background,
+      surface: lightColors.surface,
+      surfaceVariant: lightColors.surfaceVariant,
+      error: lightColors.error,
+      onPrimary: lightColors.onPrimary,
+      onSurface: lightColors.onSurface,
+      onSurfaceVariant: lightColors.onSurfaceVariant,
+      outline: lightColors.outline,
+      inverseSurface: lightColors.inverseSurface,
+      inverseOnSurface: lightColors.inverseOnSurface,
+      inversePrimary: lightColors.inversePrimary,
+      shadow: lightColors.shadow,
+      scrim: lightColors.scrim,
+      backdrop: lightColors.backdrop,
+      elevation: lightColors.elevation,
+    },
+  };
+  const darkPaperTheme = {
+    ...MD3DarkTheme,
+    colors: {
+      ...MD3DarkTheme.colors,
+      primary: darkColors.primary,
+      primaryContainer: darkColors.primaryContainer,
+      secondary: darkColors.secondary,
+      background: darkColors.background,
+      surface: darkColors.surface,
+      surfaceVariant: darkColors.surfaceVariant,
+      error: darkColors.error,
+      onPrimary: darkColors.onPrimary,
+      onSurface: darkColors.onSurface,
+      onSurfaceVariant: darkColors.onSurfaceVariant,
+      outline: darkColors.outline,
+      inverseSurface: darkColors.inverseSurface,
+      inverseOnSurface: darkColors.inverseOnSurface,
+      inversePrimary: darkColors.inversePrimary,
+      shadow: darkColors.shadow,
+      scrim: darkColors.scrim,
+      backdrop: darkColors.backdrop,
+      elevation: darkColors.elevation,
+    },
+  };
+  return { lightPaperTheme, darkPaperTheme };
+}
 
 interface ThemeContextType {
   theme: AppTheme;
@@ -118,6 +124,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const isDark =
     themeMode === 'dark' || (themeMode === 'system' && systemColorScheme === 'dark');
 
+  const { lightPaperTheme, darkPaperTheme } = getNativePaperThemes();
   const colors = isDark ? darkColors : lightColors;
   const paperTheme = isDark ? darkPaperTheme : lightPaperTheme;
 

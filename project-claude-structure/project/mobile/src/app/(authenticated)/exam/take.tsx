@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { Text, Button, ActivityIndicator, Card, ProgressBar } from 'react-native-paper';
+import { Text, Button, ActivityIndicator, Card, CardContent, ProgressBar } from '@/components/PaperCompat';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTheme } from '@/theme/ThemeContext';
@@ -139,7 +139,7 @@ export default function ExamTakeScreen() {
       {/* Question */}
       <ScrollView style={styles.questionSection} contentContainerStyle={styles.questionContent}>
         <Card style={[styles.questionCard, { backgroundColor: theme.colors.surface }]}>
-          <Card.Content>
+          <CardContent>
             <Text variant="titleMedium" style={[styles.questionText, { color: theme.colors.text }]}>
               {currentQuestion.text}
             </Text>
@@ -148,7 +148,7 @@ export default function ExamTakeScreen() {
                 [Imagen: {currentQuestion.imageUrl}]
               </Text>
             )}
-          </Card.Content>
+          </CardContent>
         </Card>
 
         {/* Options */}
@@ -170,9 +170,8 @@ export default function ExamTakeScreen() {
                       { backgroundColor: theme.colors.surface },
                       isSelected && { backgroundColor: theme.colors.primaryContainer, borderColor: theme.colors.primary },
                     ]}
-                    mode={isSelected ? 'elevated' : 'outlined'}
                   >
-                    <Card.Content style={styles.optionContent}>
+                    <CardContent style={styles.optionContent}>
                       <View style={[
                         styles.optionLetter,
                         { backgroundColor: isSelected ? theme.colors.primary : theme.colors.border },
@@ -194,7 +193,7 @@ export default function ExamTakeScreen() {
                       >
                         {option.text}
                       </Text>
-                    </Card.Content>
+                    </CardContent>
                   </Card>
                 </TouchableOpacity>
               );
@@ -237,7 +236,7 @@ export default function ExamTakeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 16 },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
   loadingText: {},
   errorText: { textAlign: 'center' },
   progressSection: { padding: 16 },
@@ -249,7 +248,7 @@ const styles = StyleSheet.create({
   questionCard: { marginBottom: 20 },
   questionText: {},
   imageNote: { marginTop: 8, fontStyle: 'italic' },
-  optionsContainer: { gap: 12 },
+  optionsContainer: { marginTop: 12 },
   optionCard: {},
   optionContent: { flexDirection: 'row', alignItems: 'center' },
   optionLetter: {
@@ -262,6 +261,6 @@ const styles = StyleSheet.create({
   },
   optionLetterText: { fontWeight: '600' },
   optionText: { flex: 1 },
-  navigationSection: { flexDirection: 'row', padding: 16, gap: 12 },
+  navigationSection: { flexDirection: 'row', padding: 16 },
   navButton: { flex: 1 },
 });

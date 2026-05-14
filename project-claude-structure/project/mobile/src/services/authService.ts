@@ -1,4 +1,4 @@
-import * as SecureStore from 'expo-secure-store';
+import { storage } from './storage';
 import { api } from './api';
 import { LoginFormData, RegisterFormData, AuthResponse } from '@/types/auth';
 
@@ -21,9 +21,9 @@ export const authService = {
     }
 
     const { access_token, user, refresh_token } = response.data.data;
-    await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, access_token);
+    await storage.setItemAsync(ACCESS_TOKEN_KEY, access_token);
     if (refresh_token) {
-      await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refresh_token);
+      await storage.setItemAsync(REFRESH_TOKEN_KEY, refresh_token);
     }
     return { access_token, user, refresh_token };
   },
@@ -56,9 +56,9 @@ export const authService = {
     }
 
     const refresh_token = session?.refresh_token;
-    await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, access_token);
+    await storage.setItemAsync(ACCESS_TOKEN_KEY, access_token);
     if (refresh_token) {
-      await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refresh_token);
+      await storage.setItemAsync(REFRESH_TOKEN_KEY, refresh_token);
     }
     return { access_token, user: backendUser };
   },
@@ -69,26 +69,26 @@ export const authService = {
     } catch (error) {
       // Ignore logout errors
     }
-    await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
-    await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+    await storage.deleteItemAsync(ACCESS_TOKEN_KEY);
+    await storage.deleteItemAsync(REFRESH_TOKEN_KEY);
   },
 
   getToken: async (): Promise<string | null> => {
-    return SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
+    return storage.getItemAsync(ACCESS_TOKEN_KEY);
   },
 
   getRefreshToken: async (): Promise<string | null> => {
-    return SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+    return storage.getItemAsync(REFRESH_TOKEN_KEY);
   },
 
   isAuthenticated: async (): Promise<boolean> => {
-    const token = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
+    const token = await storage.getItemAsync(ACCESS_TOKEN_KEY);
     return !!token;
   },
 
   // Restore session on app start - validate token with backend
   restoreSession: async (): Promise<{ access_token: string; user: any } | null> => {
-    const token = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
+    const token = await storage.getItemAsync(ACCESS_TOKEN_KEY);
     if (!token) return null;
 
     try {
@@ -104,23 +104,23 @@ export const authService = {
         if (refreshed) {
           return refreshed;
         }
-        await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
-        await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+        await storage.deleteItemAsync(ACCESS_TOKEN_KEY);
+        await storage.deleteItemAsync(REFRESH_TOKEN_KEY);
         return null;
       }
 
       return { access_token: token, user: response.data.data?.user || null };
     } catch (error) {
       // Network error or token invalid
-      await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
-      await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+      await storage.deleteItemAsync(ACCESS_TOKEN_KEY);
+      await storage.deleteItemAsync(REFRESH_TOKEN_KEY);
       return null;
     }
   },
 
   // Refresh access token using refresh token
   refreshToken: async (): Promise<{ access_token: string; user: any } | null> => {
-    const refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+    const refreshToken = await storage.getItemAsync(REFRESH_TOKEN_KEY);
     if (!refreshToken) return null;
 
     try {
@@ -139,9 +139,9 @@ export const authService = {
 
       if (!newAccessToken) return null;
 
-      await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, newAccessToken);
+      await storage.setItemAsync(ACCESS_TOKEN_KEY, newAccessToken);
       if (newRefreshToken) {
-        await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, newRefreshToken);
+        await storage.setItemAsync(REFRESH_TOKEN_KEY, newRefreshToken);
       }
 
       // Get user data with new token
