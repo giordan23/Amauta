@@ -1,0 +1,434 @@
+/* =================================================
+   EXAM CONFIG COMPONENTS
+   Professional exam configuration form styling
+   ================================================= */
+
+/* Config Page Layout */
+.exam-config-container {
+  min-height: 100vh;
+  background: var(--color-background);
+}
+
+.exam-config-content {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* Header Section */
+.exam-config-header {
+  text-align: center;
+  margin-bottom: var(--space-2);
+}
+
+.exam-config-title {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-on-background);
+  margin-bottom: var(--space-3);
+}
+
+.exam-config-description {
+  font-size: var(--font-size-lg);
+  color: var(--color-outline);
+  max-width: 48rem;
+  margin: 0 auto;
+  line-height: var(--line-height-relaxed);
+}
+
+/* Summary Stats */
+.exam-config-summary {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-6);
+  padding: var(--space-4) 0;
+  flex-wrap: wrap;
+}
+
+.exam-summary-stat {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4) var(--space-6);
+  text-align: center;
+  min-width: 140px;
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.exam-summary-stat::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-primary);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+.exam-summary-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-primary)/0.3;
+}
+
+.exam-summary-value {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  line-height: var(--line-height-tight);
+  margin-bottom: var(--space-1);
+}
+
+.exam-summary-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Radio Button Groups */
+.exam-type-grid {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .exam-type-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.exam-type-option {
+  display: flex;
+  align-items: center;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.exam-type-option::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, var(--color-primary)/0.05, transparent);
+  transition: left var(--transition-slow);
+}
+
+.exam-type-option:hover::before {
+  left: 100%;
+}
+
+.exam-type-option:hover {
+  border-color: var(--color-primary)/0.5;
+  transform: translateY(-1px);
+}
+
+.exam-type-option--selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary)/0.05;
+}
+
+.exam-type-radio {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--color-outline);
+  margin-right: var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-base);
+  flex-shrink: 0;
+}
+
+.exam-type-radio--selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+}
+
+.exam-type-radio-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+}
+
+.exam-type-content {
+  flex: 1;
+}
+
+.exam-type-title {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-on-background);
+  margin-bottom: var(--space-1);
+}
+
+.exam-type-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-outline);
+}
+
+/* Subject Selection Grid */
+.subjects-grid {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .subjects-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .subjects-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.subject-option {
+  display: flex;
+  align-items: center;
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.subject-option:hover {
+  border-color: var(--color-primary)/0.5;
+  background: var(--color-surface-elevated);
+}
+
+.subject-option--selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary)/0.05;
+}
+
+.subject-checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-outline);
+  margin-right: var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-base);
+  flex-shrink: 0;
+}
+
+.subject-checkbox--selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+}
+
+.subject-checkbox-icon {
+  width: 12px;
+  height: 12px;
+  color: white;
+}
+
+.subject-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.subject-name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-on-background);
+  margin-bottom: 2px;
+}
+
+.subject-questions {
+  font-size: var(--font-size-xs);
+  color: var(--color-outline);
+}
+
+/* Form Controls */
+.config-form-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .config-form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.config-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.config-form-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-on-surface);
+}
+
+.config-form-select {
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+  color: var(--color-on-surface);
+  transition: all var(--transition-base);
+  cursor: pointer;
+}
+
+.config-form-select:hover {
+  border-color: var(--color-primary)/0.5;
+}
+
+.config-form-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary)/0.1;
+}
+
+/* Checkbox Options */
+.config-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.config-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  cursor: pointer;
+  padding: var(--space-2);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-base);
+}
+
+.config-option:hover {
+  background: var(--color-surface-elevated);
+}
+
+.config-option-checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-base);
+  flex-shrink: 0;
+}
+
+.config-option-checkbox--checked {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.config-option-checkbox-icon {
+  width: 10px;
+  height: 10px;
+  color: white;
+}
+
+.config-option-text {
+  color: var(--color-on-surface);
+  font-size: var(--font-size-sm);
+}
+
+/* Action Buttons */
+.config-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .config-actions {
+    flex-direction: row;
+  }
+}
+
+.config-action-button {
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  transition: all var(--transition-base);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 52px;
+  flex: 1;
+}
+
+.config-action-button--primary {
+  background: var(--color-primary);
+  color: white;
+  border: 1px solid var(--color-primary);
+}
+
+.config-action-button--primary:hover {
+  background: var(--color-primary-hover, var(--color-primary));
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--color-primary)/0.3;
+}
+
+.config-action-button--secondary {
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-border);
+}
+
+.config-action-button--secondary:hover {
+  background: var(--color-surface-elevated);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+/* Screen reader only elements */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Card Header Extensions */
+.config-card-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-outline);
+  margin-left: auto;
+  font-weight: var(--font-weight-medium);
+}

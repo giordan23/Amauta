@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
-import { FileText, TrendingUp, Clock, Award } from 'lucide-react';
-import { StatCard } from '@/components/ui/StatCard';
+import { FileText, TrendingUp, Clock, Award, Calendar, BarChart3, Eye, RotateCcw, Filter } from 'lucide-react';
 import { FilterBar } from '@/components/ui/FilterBar';
 import { Badge } from '@/components/ui/Badge';
 
@@ -62,6 +61,37 @@ function getDaysAgo(dateStr: string): number {
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
 
+function getScoreClass(score: number): string {
+  if (score >= 90) return 'excellent';
+  if (score >= 80) return 'good';
+  if (score >= 70) return 'regular';
+  return 'needs-improvement';
+}
+
+function getSubjectType(examType: string): string {
+  if (examType.includes('Simulacro')) return 'complete';
+  if (examType.includes('Matemática')) return 'math';
+  if (examType.includes('Verbal')) return 'verbal';
+  if (examType.includes('Ciencias')) return 'science';
+  return 'complete';
+}
+
+function getSubjectIcon(examType: string): string {
+  if (examType.includes('Simulacro')) return '📚';
+  if (examType.includes('Matemática')) return '🔢';
+  if (examType.includes('Verbal')) return '📝';
+  if (examType.includes('Ciencias')) return '🧪';
+  return '📚';
+}
+
+function formatExamDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString('es-ES', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
 export function ExamHistoryPage() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [periodFilter, setPeriodFilter] = useState('30');
@@ -102,169 +132,227 @@ export function ExamHistoryPage() {
   }, [filteredExams]);
 
   return (
-    <div className="min-h-screen bg-[var(--color-background)]">
-      <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-6 sm:space-y-8">
-        {/* Header Section */}
-        <header className="space-y-2 sm:space-y-3">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-on-background)]">
-            Historial de Simulacros
-          </h1>
-          <p className="text-sm sm:text-base text-[var(--color-outline)]">
-            Revisa tu progreso y rendimiento en los simulacros anteriores
-          </p>
-        </header>
-
-        {/* Stats Overview */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <StatCard
-            title="Exámenes Totales"
-            value={stats.total}
-            icon={FileText}
-            subtitle="realizados"
-          />
-          <StatCard
-            title="Promedio General"
-            value={`${stats.avgScore}%`}
-            icon={TrendingUp}
-            subtitle="puntuación"
-            trend="up"
-          />
-          <StatCard
-            title="Tiempo Total"
-            value={stats.totalTime}
-            icon={Clock}
-            subtitle="dedicado"
-          />
-          <StatCard
-            title="Mejor Puntaje"
-            value={`${stats.bestScore}%`}
-            icon={Award}
-            subtitle="récord personal"
-          />
+    <div className="page-container">
+      <div className="page-content">
+        {/* Enhanced Header Section */}
+        <div className="section-header">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+            <div>
+              <h1 className="section-title">
+                Historial de Simulacros
+              </h1>
+              <p className="section-description">
+                Revisa tu progreso y rendimiento en los simulacros anteriores
+              </p>
+              <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-2 text-[var(--color-text-secondary)]">
+                  <Calendar size={16} />
+                  <span>Último examen: hace 2 días</span>
+                </div>
+                <div className="flex items-center gap-2 text-[var(--color-success)]">
+                  <TrendingUp size={16} />
+                  <span>Mejorando +5% este mes</span>
+                </div>
+              </div>
+            </div>
+            <div className="hidden lg:flex items-center gap-6 bg-[var(--color-surface)]/50 backdrop-blur-sm rounded-xl px-4 py-3 border border-[var(--color-border)]">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-[var(--color-primary)]">{stats.total}</div>
+                <div className="text-xs text-[var(--color-text-muted)] font-medium">Total Exámenes</div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Filters */}
-        <div className="bg-[var(--color-surface)] rounded-2xl p-4 sm:p-6">
-          <FilterBar
-            filters={[
-              {
-                label: 'Tipo de Examen',
-                options: examTypes,
-                value: typeFilter,
-                onChange: setTypeFilter,
-              },
-              {
-                label: 'Período',
-                options: periods,
-                value: periodFilter,
-                onChange: setPeriodFilter,
-              },
-            ]}
-          />
-        </div>
-
-        {/* Exam History List */}
-        <div className="bg-[var(--color-surface)] rounded-2xl overflow-hidden">
-          <div className="p-4 sm:p-6 border-b border-[var(--color-outline)]/20">
-            <h2 className="text-lg sm:text-xl font-semibold text-[var(--color-on-surface)]">
-              Exámenes Recientes
-              <span className="ml-2 text-sm font-normal text-[var(--color-outline)]">
-                ({filteredExams.length})
+        {/* Enhanced Stats Overview */}
+        <div className="stats-grid">
+          <div className="ui-stat-card">
+            <div className="flex items-center justify-between mb-4">
+              <div className="ui-stat-icon-container ui-stat-icon-container--primary">
+                <FileText className="w-5 h-5 text-[var(--color-primary)]" />
+              </div>
+              <span className="text-xs px-2 py-1 bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded-full font-medium">
+                +{Math.floor(stats.total * 0.2)} este mes
               </span>
-            </h2>
+            </div>
+            <div className="ui-stat-value">{stats.total}</div>
+            <div className="ui-stat-label">Exámenes totales</div>
+          </div>
+
+          <div className="ui-stat-card">
+            <div className="flex items-center justify-between mb-4">
+              <div className="ui-stat-icon-container ui-stat-icon-container--success">
+                <TrendingUp className="w-5 h-5 text-[var(--color-success)]" />
+              </div>
+              <TrendingUp className="w-4 h-4 text-[var(--color-success)]" />
+            </div>
+            <div className="ui-stat-value">{stats.avgScore}%</div>
+            <div className="ui-stat-label">Promedio general</div>
+          </div>
+
+          <div className="ui-stat-card">
+            <div className="flex items-center justify-between mb-4">
+              <div className="ui-stat-icon-container ui-stat-icon-container--warning">
+                <Clock className="w-5 h-5 text-[var(--color-warning)]" />
+              </div>
+            </div>
+            <div className="ui-stat-value">{stats.totalTime}</div>
+            <div className="ui-stat-label">Tiempo dedicado</div>
+          </div>
+
+          <div className="ui-stat-card">
+            <div className="flex items-center justify-between mb-4">
+              <div className="ui-stat-icon-container ui-stat-icon-container--primary">
+                <Award className="w-5 h-5 text-[var(--color-primary)]" />
+              </div>
+            </div>
+            <div className="ui-stat-value">{stats.bestScore}%</div>
+            <div className="ui-stat-label">Récord personal</div>
+          </div>
+        </div>
+
+        {/* Enhanced Filters */}
+        <div className="ui-card">
+          <div className="ui-card-header">
+            <Filter className="ui-card-icon" />
+            <h3 className="ui-card-title">Filtros</h3>
+          </div>
+          <div className="ui-card-content">
+            <FilterBar
+              filters={[
+                {
+                  label: 'Tipo de Examen',
+                  options: examTypes,
+                  value: typeFilter,
+                  onChange: setTypeFilter,
+                },
+                {
+                  label: 'Período',
+                  options: periods,
+                  value: periodFilter,
+                  onChange: setPeriodFilter,
+                },
+              ]}
+            />
+          </div>
+        </div>
+
+        {/* Enhanced Exam History List */}
+        <div className="exam-list-container">
+          <div className="exam-list-header">
+            <div className="exam-list-title">
+              <BarChart3 className="ui-card-icon" />
+              <h3 className="ui-card-title">Exámenes Recientes</h3>
+            </div>
+            <div className="exam-list-subtitle">
+              <span>
+                {filteredExams.length} {filteredExams.length === 1 ? 'examen encontrado' : 'exámenes encontrados'}
+              </span>
+              <span className="exam-filter-badge">
+                {typeFilter === 'all' ? 'Todos los tipos' : typeFilter}
+              </span>
+            </div>
           </div>
 
           {filteredExams.length === 0 ? (
-            <div className="p-8 text-center">
-              <div className="text-4xl mb-3">📭</div>
-              <p className="text-[var(--color-outline)]">No hay exámenes en este período</p>
+            <div className="exam-list-empty">
+              <div className="exam-list-empty-icon">📭</div>
+              <div className="exam-list-empty-message">No hay exámenes en este período</div>
+              <div className="exam-list-empty-submessage">Intenta ajustar los filtros para ver más resultados</div>
             </div>
           ) : (
             <>
               {/* Desktop Table Header */}
-              <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3 bg-[var(--color-background)]/50 border-b border-[var(--color-outline)]/20 text-xs font-medium text-[var(--color-outline)] uppercase tracking-wider">
-                <div className="col-span-4">Examen</div>
-                <div className="col-span-2">Fecha</div>
-                <div className="col-span-2">Duración</div>
-                <div className="col-span-2 text-center">Puntaje</div>
-                <div className="col-span-2 text-right">Acciones</div>
+              <div className="exam-table-header">
+                <div>Examen</div>
+                <div>Fecha</div>
+                <div>Duración</div>
+                <div>Puntaje</div>
+                <div>Acciones</div>
               </div>
 
               {/* Exam Rows */}
-              <div className="divide-y divide-[var(--color-outline)]/20">
+              <div>
                 {filteredExams.map((exam) => (
-                  <div
-                    key={exam.id}
-                    className="p-4 sm:p-6 hover:bg-[var(--color-background)]/50 transition-colors"
-                  >
-                    {/* Mobile Card View */}
-                    <div className="md:hidden space-y-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-[var(--color-on-surface)] truncate">
+                  <div key={exam.id} className="exam-item">
+                    {/* Mobile View */}
+                    <div className="exam-item-mobile">
+                      <div className="exam-item-header">
+                        <div>
+                          <div className="exam-item-title">
                             {exam.type}
-                          </h3>
-                          <p className="text-sm text-[var(--color-outline)]">
-                            {new Date(exam.date).toLocaleDateString('es-ES', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric',
-                            })}
-                          </p>
+                            <span className={`subject-indicator subject-indicator--${getSubjectType(exam.type)}`}>
+                              {getSubjectIcon(exam.type)}
+                            </span>
+                          </div>
+                          <div className="exam-item-date">
+                            <Calendar size={14} />
+                            {formatExamDate(exam.date)}
+                          </div>
                         </div>
-                        <Badge variant={getScoreVariant(exam.score)}>
+                        <div className={`score-badge score-badge--${getScoreClass(exam.score)}`}>
                           {exam.score}%
-                        </Badge>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-[var(--color-outline)]">
-                        <span>⏱️ {exam.duration}</span>
-                        <span>📚 {exam.subjects} materia{exam.subjects > 1 ? 's' : ''}</span>
+                      
+                      <div className="exam-item-meta">
+                        <div className="exam-meta-item">
+                          <Clock size={14} />
+                          <span>{exam.duration}</span>
+                        </div>
+                        <div className="exam-meta-item">
+                          <FileText size={14} />
+                          <span>{exam.subjects} materia{exam.subjects > 1 ? 's' : ''}</span>
+                        </div>
                       </div>
-                      <div className="flex gap-2">
-                        <button className="flex-1 px-3 py-2 text-sm font-medium text-[var(--color-primary)] border border-[var(--color-primary)] rounded-lg hover:bg-[var(--color-primary)]/10 transition-colors">
+                      
+                      <div className="exam-item-actions">
+                        <button className="exam-action-button exam-action-button--primary">
+                          <Eye size={16} />
                           Ver Detalles
                         </button>
-                        <button className="flex-1 px-3 py-2 text-sm font-medium text-[var(--color-on-background)] bg-[var(--color-outline)]/10 rounded-lg hover:bg-[var(--color-outline)]/20 transition-colors">
+                        <button className="exam-action-button exam-action-button--secondary">
+                          <RotateCcw size={16} />
                           Repetir
                         </button>
                       </div>
                     </div>
 
-                    {/* Desktop Row View */}
-                    <div className="hidden md:grid grid-cols-12 gap-4 items-center">
-                      <div className="col-span-4 space-y-1">
-                        <h3 className="font-semibold text-[var(--color-on-surface)]">
+                    {/* Desktop View */}
+                    <div className="exam-item-desktop">
+                      <div className="exam-desktop-title">
+                        <div className="exam-desktop-main-title">
                           {exam.type}
-                        </h3>
-                        <p className="text-sm text-[var(--color-outline)]">
-                          {exam.subjects} materia{exam.subjects > 1 ? 's' : ''}
-                        </p>
-                      </div>
-                      <div className="col-span-2 text-sm text-[var(--color-outline)]">
-                        {new Date(exam.date).toLocaleDateString('es-ES', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric',
-                        })}
-                      </div>
-                      <div className="col-span-2 text-sm text-[var(--color-outline)]">
-                        {exam.duration}
-                      </div>
-                      <div className="col-span-2 flex justify-center">
-                        <div className="flex items-center gap-2">
-                          <Badge variant={getScoreVariant(exam.score)}>
-                            {exam.score}%
-                          </Badge>
-                          <span className="text-xs text-[var(--color-outline)]">
-                            {getScoreLabel(exam.score)}
+                          <span className={`subject-indicator subject-indicator--${getSubjectType(exam.type)}`}>
+                            {getSubjectIcon(exam.type)}
                           </span>
                         </div>
+                        <div className="exam-desktop-subtitle">
+                          {exam.subjects} materia{exam.subjects > 1 ? 's' : ''}
+                        </div>
                       </div>
-                      <div className="col-span-2 flex justify-end gap-2">
-                        <button className="px-3 py-1.5 text-sm font-medium text-[var(--color-primary)] border border-[var(--color-primary)] rounded-lg hover:bg-[var(--color-primary)]/10 transition-colors">
+                      
+                      <div className="exam-desktop-date">
+                        {formatExamDate(exam.date)}
+                      </div>
+                      
+                      <div className="exam-desktop-duration">
+                        {exam.duration}
+                      </div>
+                      
+                      <div className="exam-desktop-score">
+                        <div className={`score-badge score-badge--${getScoreClass(exam.score)}`}>
+                          {exam.score}%
+                        </div>
+                      </div>
+                      
+                      <div className="exam-desktop-actions">
+                        <button className="exam-action-button exam-action-button--primary">
+                          <Eye size={14} />
                           Ver
                         </button>
-                        <button className="px-3 py-1.5 text-sm font-medium text-[var(--color-on-background)] bg-[var(--color-outline)]/10 rounded-lg hover:bg-[var(--color-outline)]/20 transition-colors">
+                        <button className="exam-action-button exam-action-button--secondary">
+                          <RotateCcw size={14} />
                           Repetir
                         </button>
                       </div>
@@ -273,39 +361,49 @@ export function ExamHistoryPage() {
                 ))}
               </div>
 
-              {/* Load More */}
-              <div className="p-4 sm:p-6 text-center border-t border-[var(--color-outline)]/20">
-                <button className="px-6 py-2.5 text-[var(--color-primary)] font-medium hover:bg-[var(--color-primary)]/10 rounded-lg transition-colors">
+              {/* Enhanced Load More */}
+              <div className="exam-list-footer">
+                <button className="exam-load-more-button">
                   Cargar Más Exámenes
+                  <span className="exam-load-more-arrow">→</span>
                 </button>
               </div>
             </>
           )}
         </div>
 
-        {/* Progress Chart Placeholder */}
-        <div className="bg-[var(--color-surface)] rounded-2xl p-4 sm:p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg sm:text-xl font-semibold text-[var(--color-on-surface)]">
-              Progreso en el Tiempo
-            </h2>
-            <span className="text-xs text-[var(--color-outline)] bg-[var(--color-background)] px-2 py-1 rounded">
+        {/* Enhanced Progress Chart Placeholder */}
+        <div className="ui-card">
+          <div className="ui-card-header">
+            <TrendingUp className="ui-card-icon" />
+            <div>
+              <h3 className="ui-card-title">Progreso en el Tiempo</h3>
+              <p className="text-sm text-[var(--color-outline)] mt-1">
+                Visualiza tu evolución académica
+              </p>
+            </div>
+            <span className="ml-auto text-xs text-[var(--color-warning)] bg-[var(--color-warning)]/10 px-3 py-1 rounded-full font-medium">
               Próximamente
             </span>
           </div>
-          <div
-            className="h-48 sm:h-64 bg-[var(--color-background)] rounded-xl flex items-center justify-center border-2 border-dashed border-[var(--color-outline)]/30"
-          >
-            <div className="text-center space-y-3 p-6">
-              <div className="text-5xl">📈</div>
+          <div className="ui-card-content">
+            <div className="h-56 sm:h-64 bg-gradient-to-br from-[var(--color-background)] to-[var(--color-surface)] rounded-xl flex items-center justify-center border-2 border-dashed border-[var(--color-outline)]/30 relative overflow-hidden">
+            <div className="text-center space-y-4 p-8 relative z-10">
+              <div className="text-6xl mb-2">📊</div>
               <div>
-                <p className="text-[var(--color-on-surface)] font-medium">
-                  Gráfico de progreso
+                <p className="text-lg font-semibold text-[var(--color-on-surface)] mb-2">
+                  Análisis de Rendimiento
                 </p>
-                <p className="text-sm text-[var(--color-outline)]">
+                <p className="text-[var(--color-outline)] mb-4">
+                  Gráficos interactivos de tu progreso académico
+                </p>
+                <div className="inline-flex items-center gap-2 text-sm text-[var(--color-primary)] bg-[var(--color-primary)]/10 px-3 py-1 rounded-lg">
+                  <BarChart3 size={16} />
                   Próximamente disponible
-                </p>
+                </div>
               </div>
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-primary)]/5 via-transparent to-transparent"></div>
             </div>
           </div>
         </div>

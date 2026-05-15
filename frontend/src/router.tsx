@@ -1,5 +1,4 @@
 import { createBrowserRouter, createRoutesFromElements, Route, Navigate, Outlet } from 'react-router';
-import { useEffect } from 'react';
 import { LoginPage } from '@/pages/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
 import { HomePage } from '@/pages/HomePage';
@@ -7,25 +6,18 @@ import { ProfilePage } from '@/pages/ProfilePage';
 import { ExamConfigPage } from '@/pages/ExamConfigPage';
 import { ExamHistoryPage } from '@/pages/ExamHistoryPage';
 import { AppLayout } from '@/components/layout';
-import { useAuthStore, restoreSession } from '@/store/authStore';
+import { useAuthStore } from '@/store/authStore';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuthStore();
 
-  useEffect(() => {
-    if (!isAuthenticated && !isLoading) {
-      restoreSession().then((result) => {
-        if (result) {
-          useAuthStore.getState().setUser(result.user);
-        }
-      });
-    }
-  }, [isAuthenticated, isLoading]);
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--color-background)]">
-        <div className="animate-spin w-8 h-8 border-4 border-[var(--color-primary)] border-t-transparent rounded-full" />
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin w-12 h-12 border-4 border-[var(--color-primary)] border-t-transparent rounded-full" />
+          <p className="text-[var(--color-outline)] text-sm">Cargando...</p>
+        </div>
       </div>
     );
   }
