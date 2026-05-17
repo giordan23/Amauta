@@ -1,0 +1,258 @@
+/* Exam Results Page Styles */
+
+/* Results container */
+.exam-results-container {
+  min-height: 100vh;
+  background: var(--color-background);
+  padding: var(--space-6);
+}
+
+.exam-results-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Score display */
+.exam-results-header {
+  text-align: center;
+  margin-bottom: var(--space-8);
+}
+
+.exam-results-emoji {
+  font-size: 4rem;
+  margin-bottom: var(--space-4);
+}
+
+.exam-results-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-on-surface);
+  margin-bottom: var(--space-2);
+}
+
+.exam-results-university {
+  color: var(--color-outline);
+  margin-bottom: var(--space-8);
+}
+
+.exam-score-circle {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  border: 8px solid var(--color-surface);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-6);
+  background: var(--color-surface);
+  position: relative;
+}
+
+.exam-score-percentage {
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.exam-score-details {
+  font-size: 0.875rem;
+  color: var(--color-outline);
+  margin-top: var(--space-1);
+}
+
+.exam-grade-label {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: var(--space-4);
+}
+
+.exam-time-info {
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+/* Stats cards */
+.exam-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-6);
+  margin: var(--space-8) 0;
+}
+
+.exam-stat-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-outline-variant);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.exam-stat-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-container-lowest);
+}
+
+.exam-stat-icon {
+  font-size: 1.5rem;
+}
+
+.exam-stat-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.exam-stat-content {
+  padding: var(--space-6);
+  text-align: center;
+}
+
+.exam-stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: var(--space-2);
+}
+
+.exam-stat-description {
+  color: var(--color-outline);
+  font-size: 0.875rem;
+}
+
+/* Action buttons */
+.exam-results-actions {
+  display: flex;
+  gap: var(--space-4);
+  justify-content: center;
+  margin-top: var(--space-8);
+  flex-wrap: wrap;
+}
+
+.exam-action-button {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-6);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 1rem;
+  min-width: 160px;
+  justify-content: center;
+}
+
+.exam-action-button:hover {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.exam-action-button.secondary {
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-outline);
+}
+
+.exam-action-button.secondary:hover {
+  background: var(--color-surface-container);
+}
+
+/* Grade colors */
+.grade-excellent {
+  color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.grade-very-good {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.grade-good {
+  color: var(--color-secondary);
+  border-color: var(--color-secondary);
+}
+
+.grade-fair {
+  color: var(--color-warning);
+  border-color: var(--color-warning);
+}
+
+.grade-needs-improvement {
+  color: var(--color-error);
+  border-color: var(--color-error);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .exam-results-container {
+    padding: var(--space-4);
+  }
+
+  .exam-results-title {
+    font-size: 1.5rem;
+  }
+
+  .exam-score-circle {
+    width: 150px;
+    height: 150px;
+  }
+
+  .exam-score-percentage {
+    font-size: 2.5rem;
+  }
+
+  .exam-grade-label {
+    font-size: 1.25rem;
+  }
+
+  .exam-stats-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .exam-stat-value {
+    font-size: 2rem;
+  }
+
+  .exam-results-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .exam-action-button {
+    width: 100%;
+    max-width: 280px;
+  }
+}
+
+@media (max-width: 480px) {
+  .exam-results-emoji {
+    font-size: 3rem;
+  }
+
+  .exam-score-circle {
+    width: 120px;
+    height: 120px;
+    border-width: 6px;
+  }
+
+  .exam-score-percentage {
+    font-size: 2rem;
+  }
+
+  .exam-score-details {
+    font-size: 0.75rem;
+  }
+}

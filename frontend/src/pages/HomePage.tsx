@@ -74,12 +74,6 @@ const actionCards = [
   }
 ];
 
-function getScoreBadgeVariant(score: number): 'success' | 'warning' | 'error' {
-  if (score >= 80) return 'success';
-  if (score >= 60) return 'warning';
-  return 'error';
-}
-
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
   return date.toLocaleDateString('es-PE', {

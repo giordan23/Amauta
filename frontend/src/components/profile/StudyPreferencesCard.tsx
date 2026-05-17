@@ -1,5 +1,4 @@
 import { BookOpen, GraduationCap } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardBody } from '@/components/ui/Card';
 
 interface StudyPreferencesCardProps {
   mockCareer: string;

@@ -1,5 +1,3 @@
-import { Card, CardHeader, CardTitle, CardBody } from '@/components/ui/Card';
-
 interface ProgressOverviewCardProps {
   mockRank: string;
   progressPercentage?: number;

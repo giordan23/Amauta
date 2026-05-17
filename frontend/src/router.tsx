@@ -4,6 +4,8 @@ import { RegisterPage } from '@/pages/RegisterPage';
 import { HomePage } from '@/pages/HomePage';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { ExamConfigPage } from '@/pages/ExamConfigPage';
+import { ExamTakePage } from '@/pages/ExamTakePage';
+import { ExamResultsPage } from '@/pages/ExamResultsPage';
 import { ExamHistoryPage } from '@/pages/ExamHistoryPage';
 import { AppLayout } from '@/components/layout';
 import { useAuthStore } from '@/store/authStore';
@@ -52,6 +54,8 @@ export const router = createBrowserRouter(
         <Route path="home" element={<HomePage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="exam/config" element={<ExamConfigPage />} />
+        <Route path="exam/take" element={<ExamTakePage />} />
+        <Route path="exam/results" element={<ExamResultsPage />} />
         <Route path="exam/history" element={<ExamHistoryPage />} />
       </Route>
 

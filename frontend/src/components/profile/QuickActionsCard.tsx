@@ -31,33 +31,6 @@ export function QuickActionsCard({ onEditProfile, onChangePassword, onSettings }
     }
   ];
 
-  const getColorClasses = (color: string) => {
-    const colors = {
-      primary: {
-        bg: 'bg-[var(--color-primary)]/10',
-        hoverBg: 'hover:bg-[var(--color-primary)]/5',
-        border: 'hover:border-[var(--color-primary)]',
-        iconBg: 'bg-[var(--color-primary)]/10 group-hover:bg-[var(--color-primary)]/20',
-        iconText: 'text-[var(--color-primary)]'
-      },
-      warning: {
-        bg: 'bg-[var(--color-warning)]/10',
-        hoverBg: 'hover:bg-[var(--color-warning)]/5',
-        border: 'hover:border-[var(--color-warning)]',
-        iconBg: 'bg-[var(--color-warning)]/10 group-hover:bg-[var(--color-warning)]/20',
-        iconText: 'text-[var(--color-warning)]'
-      },
-      secondary: {
-        bg: 'bg-[var(--color-secondary)]/10',
-        hoverBg: 'hover:bg-[var(--color-secondary)]/5',
-        border: 'hover:border-[var(--color-secondary)]',
-        iconBg: 'bg-[var(--color-secondary)]/10 group-hover:bg-[var(--color-secondary)]/20',
-        iconText: 'text-[var(--color-secondary)]'
-      }
-    };
-    return colors[color as keyof typeof colors] || colors.primary;
-  };
-
   return (
     <div className="ui-card">
       <div className="ui-card-header">
@@ -68,7 +41,6 @@ export function QuickActionsCard({ onEditProfile, onChangePassword, onSettings }
         <div className="ui-actions-grid">
         {actions.map((action, index) => {
           const Icon = action.icon;
-          const colors = getColorClasses(action.color);
           
           return (
             <button

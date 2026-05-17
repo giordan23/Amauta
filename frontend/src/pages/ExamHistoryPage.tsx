@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { FileText, TrendingUp, Clock, Award, Calendar, BarChart3, Eye, RotateCcw, Filter } from 'lucide-react';
 import { FilterBar } from '@/components/ui/FilterBar';
-import { Badge } from '@/components/ui/Badge';
 
 interface Exam {
   id: number;
@@ -38,21 +37,8 @@ const periods = [
   { value: '30', label: 'Últimos 30 días' },
   { value: '90', label: 'Últimos 3 meses' },
   { value: '180', label: 'Últimos 6 meses' },
-  { value: 'all', label: 'Todo el tiempo' },
+{ value: 'all', label: 'Todo el tiempo' }
 ];
-
-function getScoreVariant(score: number): 'success' | 'info' | 'default' {
-  if (score >= 90) return 'success';
-  if (score >= 80) return 'info';
-  return 'default';
-}
-
-function getScoreLabel(score: number): string {
-  if (score >= 90) return 'Excelente';
-  if (score >= 80) return 'Bueno';
-  if (score >= 70) return 'Regular';
-  return 'En progreso';
-}
 
 function getDaysAgo(dateStr: string): number {
   const date = new Date(dateStr);

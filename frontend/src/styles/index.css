@@ -24,6 +24,8 @@
 @import './components/unified-cards.css';
 @import './components/exam-list.css';
 @import './components/exam-config.css';
+@import './components/exam-take.css';
+@import './components/exam-results.css';
 @import './components/auth.css';
 @import './shared/layout.css';
 @import './app-layout.css';

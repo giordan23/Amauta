@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useProfileData } from '@/hooks/useProfileData';
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
 import { StatsGrid } from '@/components/profile/StatsGrid';
@@ -9,13 +9,41 @@ import { ProgressOverviewCard } from '@/components/profile/ProgressOverviewCard'
 import type { ProfileActions } from '@/types/profile';
 
 export function ProfilePage() {
-  const { user, mockData, stats } = useProfileData();
+  const { user, profile, mockData, stats, loading, error, updateProfile } = useProfileData();
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const handleEditProfile = useCallback(async () => {
+    if (!editValue.trim()) return;
+    
+    try {
+      setSaving(true);
+      await updateProfile({ firstName: editValue.trim() });
+      setEditingField(null);
+      setEditValue('');
+    } catch (err) {
+      console.error('Error updating profile:', err);
+    } finally {
+      setSaving(false);
+    }
+  }, [editValue, updateProfile]);
+
+  const startEditing = useCallback((field: string, currentValue: string) => {
+    setEditingField(field);
+    setEditValue(currentValue);
+  }, []);
+
+  const cancelEditing = useCallback(() => {
+    setEditingField(null);
+    setEditValue('');
+  }, []);
 
   const actions: ProfileActions = {
     onEditProfile: useCallback(() => {
-      console.log('Editar Perfil clicked');
-      // TODO: Implement edit profile modal/page
-    }, []),
+      const currentName = profile?.firstName || user?.firstName || '';
+      startEditing('firstName', currentName);
+    }, [profile, user, startEditing]),
     onChangePassword: useCallback(() => {
       console.log('Cambiar Contraseña clicked');
       // TODO: Implement change password modal
@@ -26,9 +54,29 @@ export function ProfilePage() {
     }, [])
   };
 
+  if (loading && !profile) {
+    return (
+      <div className="page-container">
+        <div className="page-content">
+          <div className="flex-center" style={{ minHeight: '200px' }}>
+            <div className="skeleton" style={{ width: '100px', height: '20px' }}></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="page-container">
       <div className="page-content">
+        {error && (
+          <div className="ui-card" style={{ marginBottom: 'var(--space-4)', borderColor: 'var(--color-error)' }}>
+            <div className="ui-card-content">
+              <p style={{ color: 'var(--color-error)', margin: 0 }}>{error}</p>
+            </div>
+          </div>
+        )}
+
         <ProfileHeader 
           user={user}
           mockCareer={mockData.career}
@@ -46,7 +94,13 @@ export function ProfilePage() {
           <div className="cards-main-content">
             <PersonalInfoCard 
               user={user} 
-              mockRegisterDate={mockData.registerDate} 
+              mockRegisterDate={mockData.registerDate}
+              editingField={editingField}
+              editValue={editValue}
+              onStartEdit={startEditing}
+              onCancelEdit={cancelEditing}
+              onSave={handleEditProfile}
+              saving={saving}
             />
             <StudyPreferencesCard 
               mockCareer={mockData.career}
