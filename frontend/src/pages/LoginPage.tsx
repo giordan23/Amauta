@@ -29,70 +29,8 @@ export function LoginPage() {
   };
 
   return (
-    <>
-      {/* Mobile Layout */}
-      <div className="auth-layout-mobile auth-hide-desktop">
-        <div className="auth-header-mobile">
-          <h1 className="auth-hero-title">Amauta</h1>
-          <p className="auth-hero-description">Simulacro de Admisión Universitaria</p>
-        </div>
-        
-        <div className="auth-form-mobile">
-          <div className="form-container-mobile animate-slide-up">
-            <div>
-              <h2 className="auth-page-title">Inicia Sesión</h2>
-              <p className="auth-page-subtitle">Accede a tu cuenta para continuar</p>
-            </div>
-
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="auth-form-group">
-                <label className="auth-form-label">Correo Electrónico</label>
-                <input
-                  {...register('email')}
-                  type="email"
-                  className={`auth-form-input ${errors.email ? 'auth-form-input--error' : ''}`}
-                  placeholder="ejemplo@correo.com"
-                />
-                {errors.email && (
-                  <span className="auth-form-error">{errors.email.message}</span>
-                )}
-              </div>
-
-              <div className="auth-form-group">
-                <label className="auth-form-label">Contraseña</label>
-                <input
-                  {...register('password')}
-                  type="password"
-                  className={`auth-form-input ${errors.password ? 'auth-form-input--error' : ''}`}
-                  placeholder="Tu contraseña"
-                />
-                {errors.password && (
-                  <span className="auth-form-error">{errors.password.message}</span>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className={`auth-button auth-button--primary ${isSubmitting ? 'auth-button--loading' : ''}`}
-              >
-                {!isSubmitting && 'Iniciar Sesión'}
-              </button>
-            </form>
-
-            <div className="auth-divider">
-              <p className="text-sm text-[var(--color-text-muted)]">
-                ¿No tienes cuenta?{' '}
-                <Link to="/auth/register" className="auth-link">
-                  Regístrate aquí
-                </Link>
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Desktop Layout */}
+    <div className="auth-page-container">
+      {/* Left Panel - Hero (Desktop only) */}
       <div className="auth-layout-desktop auth-hide-mobile">
         <div className="auth-hero-section">
           <div className="auth-hero-content">
@@ -129,71 +67,78 @@ export function LoginPage() {
             </ul>
           </div>
         </div>
+      </div>
 
-        <div className="auth-form-section">
-          <div className="form-container-desktop animate-scale-in">
-            <div>
-              <h2 className="auth-page-title">Iniciar Sesión</h2>
-              <p className="auth-page-subtitle">
-                Accede a tu cuenta para continuar con tu preparación
-              </p>
+      {/* Right Panel - Form (Both mobile and desktop) */}
+      <div className="auth-form-panel">
+        {/* Mobile header */}
+        <div className="auth-hide-desktop auth-header-mobile">
+          <h1 className="auth-hero-title">Amauta</h1>
+          <p className="auth-hero-description">Simulacro de Admisión Universitaria</p>
+        </div>
+
+        <div className="form-container">
+          <div>
+            <h2 className="auth-page-title">Inicia Sesión</h2>
+            <p className="auth-page-subtitle">Accede a tu cuenta para continuar</p>
+          </div>
+
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="auth-form-group">
+              <label className="auth-form-label">Correo Electrónico</label>
+              <input
+                {...register('email')}
+                type="email"
+                className={`auth-form-input ${errors.email ? 'auth-form-input--error' : ''}`}
+                placeholder="ejemplo@correo.com"
+                autoComplete="email"
+              />
+              {errors.email && (
+                <span className="auth-form-error">{errors.email.message}</span>
+              )}
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="auth-form-group">
-                <label className="auth-form-label">Correo Electrónico</label>
-                <input
-                  {...register('email')}
-                  type="email"
-                  className={`auth-form-input ${errors.email ? 'auth-form-input--error' : ''}`}
-                  placeholder="ejemplo@correo.com"
-                />
-                {errors.email && (
-                  <span className="auth-form-error">{errors.email.message}</span>
-                )}
-              </div>
-
-              <div className="auth-form-group">
-                <label className="auth-form-label">Contraseña</label>
-                <input
-                  {...register('password')}
-                  type="password"
-                  className={`auth-form-input ${errors.password ? 'auth-form-input--error' : ''}`}
-                  placeholder="Tu contraseña"
-                />
-                {errors.password && (
-                  <span className="auth-form-error">{errors.password.message}</span>
-                )}
-              </div>
-
-              <div className="auth-options">
-                <label className="auth-remember-option">
-                  <input type="checkbox" className="auth-checkbox" />
-                  <span className="text-[var(--color-text-secondary)]">Recordar sesión</span>
-                </label>
-                <a href="#" className="auth-forgot-link">¿Olvidaste tu contraseña?</a>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className={`auth-button auth-button--primary ${isSubmitting ? 'auth-button--loading' : ''}`}
-              >
-                {!isSubmitting && 'Iniciar Sesión'}
-              </button>
-            </form>
-
-            <div className="auth-divider">
-              <p className="text-[var(--color-text-secondary)]">
-                ¿No tienes cuenta?{' '}
-                <Link to="/auth/register" className="auth-link">
-                  Regístrate aquí
-                </Link>
-              </p>
+            <div className="auth-form-group">
+              <label className="auth-form-label">Contraseña</label>
+              <input
+                {...register('password')}
+                type="password"
+                className={`auth-form-input ${errors.password ? 'auth-form-input--error' : ''}`}
+                placeholder="Tu contraseña"
+                autoComplete="current-password"
+              />
+              {errors.password && (
+                <span className="auth-form-error">{errors.password.message}</span>
+              )}
             </div>
+
+            <div className="auth-options">
+              <label className="auth-remember-option">
+                <input type="checkbox" className="auth-checkbox" />
+                <span className="text-[var(--color-text-secondary)]">Recordar sesión</span>
+              </label>
+              <a href="#" className="auth-forgot-link">¿Olvidaste tu contraseña?</a>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`auth-button auth-button--primary ${isSubmitting ? 'auth-button--loading' : ''}`}
+            >
+              {!isSubmitting && 'Iniciar Sesión'}
+            </button>
+          </form>
+
+          <div className="auth-divider">
+            <p className="text-[var(--color-text-secondary)]">
+              ¿No tienes cuenta?{' '}
+              <Link to="/auth/register" className="auth-link">
+                Regístrate aquí
+              </Link>
+            </p>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
