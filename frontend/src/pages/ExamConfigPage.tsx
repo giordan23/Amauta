@@ -31,8 +31,8 @@ export function ExamConfigPage() {
       setLoading(true);
       setError(null);
       
-      // Use UNMSM as the default university for quick start
-      const universityId = 'unmsm';
+      // Use UNI as the default university (has most questions in the DB)
+      const universityId = 'uni';
       
       // Start exam with 100 random questions
       const result = await examService.startExam(universityId, 100);

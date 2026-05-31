@@ -1,29 +1,27 @@
-import { useState, useMemo } from 'react';
-import { FileText, TrendingUp, Clock, Award, Calendar, BarChart3, Eye, RotateCcw, Filter } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { FileText, TrendingUp, Clock, Award, Calendar, BarChart3, Eye, RotateCcw, Filter, Loader2 } from 'lucide-react';
 import { FilterBar } from '@/components/ui/FilterBar';
+import { examService } from '@/services/examService';
 
-interface Exam {
-  id: number;
-  date: string;
-  type: string;
+interface ExamAttempt {
+  id: string;
+  status: string;
   score: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  startedAt: string;
+  completedAt?: string;
+  university: { id: string; name: string; shortName: string };
+  subjectIds: string[];
+  careerIds: string[];
+  difficulty: string | null;
+}
+
+interface ExamHistoryItem extends ExamAttempt {
+  type: string;
   duration: string;
   subjects: number;
 }
-
-// Datos mock realistas
-const allExams: Exam[] = [
-  { id: 1, date: '2026-05-12', type: 'Simulacro Completo', score: 78, duration: '2h 45m', subjects: 6 },
-  { id: 2, date: '2026-05-10', type: 'Matemática', score: 92, duration: '45m', subjects: 1 },
-  { id: 3, date: '2026-05-08', type: 'Simulacro Completo', score: 68, duration: '2h 58m', subjects: 6 },
-  { id: 4, date: '2026-05-05', type: 'Razonamiento Verbal', score: 88, duration: '1h 15m', subjects: 1 },
-  { id: 5, date: '2026-05-03', type: 'Ciencias', score: 75, duration: '55m', subjects: 1 },
-  { id: 6, date: '2026-04-28', type: 'Simulacro Completo', score: 82, duration: '2h 50m', subjects: 6 },
-  { id: 7, date: '2026-04-25', type: 'Matemática', score: 95, duration: '40m', subjects: 1 },
-  { id: 8, date: '2026-04-22', type: 'Simulacro Completo', score: 71, duration: '3h 05m', subjects: 6 },
-  { id: 9, date: '2026-04-18', type: 'Razonamiento Verbal', score: 84, duration: '1h 20m', subjects: 1 },
-  { id: 10, date: '2026-04-15', type: 'Ciencias', score: 79, duration: '50m', subjects: 1 },
-];
 
 const examTypes = [
   { value: 'all', label: 'Todos los tipos' },
@@ -37,7 +35,7 @@ const periods = [
   { value: '30', label: 'Últimos 30 días' },
   { value: '90', label: 'Últimos 3 meses' },
   { value: '180', label: 'Últimos 6 meses' },
-{ value: 'all', label: 'Todo el tiempo' }
+  { value: 'all', label: 'Todo el tiempo' }
 ];
 
 function getDaysAgo(dateStr: string): number {
@@ -54,19 +52,11 @@ function getScoreClass(score: number): string {
   return 'needs-improvement';
 }
 
-function getSubjectType(examType: string): string {
-  if (examType.includes('Simulacro')) return 'complete';
-  if (examType.includes('Matemática')) return 'math';
-  if (examType.includes('Verbal')) return 'verbal';
-  if (examType.includes('Ciencias')) return 'science';
+function getSubjectType(): string {
   return 'complete';
 }
 
-function getSubjectIcon(examType: string): string {
-  if (examType.includes('Simulacro')) return '📚';
-  if (examType.includes('Matemática')) return '🔢';
-  if (examType.includes('Verbal')) return '📝';
-  if (examType.includes('Ciencias')) return '🧪';
+function getSubjectIcon(): string {
   return '📚';
 }
 
@@ -78,44 +68,109 @@ function formatExamDate(dateStr: string): string {
   });
 }
 
+function formatDuration(startedAt: string, completedAt: string | undefined): string {
+  if (!completedAt) return '--';
+  const start = new Date(startedAt);
+  const end = new Date(completedAt);
+  const diffMs = end.getTime() - start.getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  const hours = Math.floor(diffMin / 60);
+  const minutes = diffMin % 60;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m`;
+}
+
 export function ExamHistoryPage() {
+  const [exams, setExams] = useState<ExamHistoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState('all');
   const [periodFilter, setPeriodFilter] = useState('30');
 
-  const filteredExams = useMemo(() => {
-    return allExams.filter((exam) => {
-      // Filter by type
-      if (typeFilter !== 'all' && exam.type !== typeFilter) return false;
+  useEffect(() => {
+    loadHistory();
+  }, []);
 
-      // Filter by period
+  const loadHistory = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await examService.getHistory();
+      const items: ExamHistoryItem[] = response.data.map((item: any) => ({
+        ...item.examAttempt,
+        type: item.examAttempt.subjectIds?.length > 1 ? 'Simulacro Completo' : 'Simulacro Completo',
+        duration: formatDuration(item.examAttempt.startedAt, item.examAttempt.completedAt),
+        subjects: item.examAttempt.subjectIds?.length || 1,
+      }));
+      setExams(items);
+    } catch (err) {
+      setError((err as Error).message || 'Error al cargar el historial');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredExams = useMemo(() => {
+    return exams.filter((exam) => {
+      if (typeFilter !== 'all' && exam.type !== typeFilter) return false;
       if (periodFilter !== 'all') {
-        const daysAgo = getDaysAgo(exam.date);
+        const daysAgo = getDaysAgo(exam.startedAt);
         if (daysAgo > parseInt(periodFilter)) return false;
       }
-
       return true;
     });
-  }, [typeFilter, periodFilter]);
+  }, [exams, typeFilter, periodFilter]);
 
-  // Calculate stats from filtered exams
   const stats = useMemo(() => {
     if (filteredExams.length === 0) {
-      return { total: 15, avgScore: 81, totalTime: '42h', bestScore: 92 };
+      return { total: 0, avgScore: 0, totalTime: '0h', bestScore: 0 };
     }
-
     const total = filteredExams.length;
     const avgScore = Math.round(
-      filteredExams.reduce((sum, e) => sum + e.score, 0) / total
+      filteredExams.reduce((sum, e) => sum + (e.score || 0), 0) / total
     );
-    const bestScore = Math.max(...filteredExams.map((e) => e.score));
-
-    // Calculate total time (mock: estimate based on exam count)
-    const totalMinutes = total * 150;
+    const bestScore = Math.max(...filteredExams.map((e) => e.score || 0));
+    const totalMinutes = filteredExams.reduce((sum, e) => {
+      const match = e.duration.match(/(\d+)h\s*(\d+)?m?/);
+      if (match) {
+        return sum + (parseInt(match[1]) * 60 + (parseInt(match[2]) || 0));
+      }
+      const minMatch = e.duration.match(/(\d+)m/);
+      return sum + (minMatch ? parseInt(minMatch[1]) : 0);
+    }, 0);
     const hours = Math.floor(totalMinutes / 60);
     const totalTime = `${hours}h`;
-
     return { total, avgScore, totalTime, bestScore };
   }, [filteredExams]);
+
+  if (loading) {
+    return (
+      <div className="page-container">
+        <div className="page-content flex items-center justify-center min-h-[400px]">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="w-8 h-8 animate-spin text-[var(--color-primary)]" />
+            <p className="text-[var(--color-text-secondary)]">Cargando historial...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="page-container">
+        <div className="page-content flex items-center justify-center min-h-[400px]">
+          <div className="flex flex-col items-center gap-4 text-center">
+            <div className="text-4xl">⚠️</div>
+            <p className="text-[var(--color-error)]">{error}</p>
+            <button onClick={loadHistory} className="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg">
+              Reintentar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="page-container">
@@ -273,7 +328,7 @@ export function ExamHistoryPage() {
                           </div>
                           <div className="exam-item-date">
                             <Calendar size={14} />
-                            {formatExamDate(exam.date)}
+                            {formatExamDate(exam.startedAt)}
                           </div>
                         </div>
                         <div className={`score-badge score-badge--${getScoreClass(exam.score)}`}>
@@ -319,7 +374,7 @@ export function ExamHistoryPage() {
                       </div>
                       
                       <div className="exam-desktop-date">
-                        {formatExamDate(exam.date)}
+                        {formatExamDate(exam.startedAt)}
                       </div>
                       
                       <div className="exam-desktop-duration">
