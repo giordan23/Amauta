@@ -33,6 +33,7 @@ app.use(helmet())
 // CORS configuration
 const CORS_ORIGINS = [
   'http://localhost:19006',
+  'http://localhost:5173',
   'exp://172.29.208.*:19000',
   'http://192.168.100.126:8081',
   'http://192.168.100.126:19000',
