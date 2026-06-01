@@ -27,22 +27,5 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src')
     }
-  },
-  server: {
-    port: 8081,
-    host: true,
-    hmr: {
-      host: 'localhost',
-      port: 8082,
-      protocol: 'ws'
-    },
-    proxy: {
-      '/api': {
-        target: 'https://backapi.simulacroadmision.com',
-        changeOrigin: true,
-        secure: true,
-        rewrite: (path) => path.replace(/^\/api/, '/api/v1')
-      }
-    }
   }
 })

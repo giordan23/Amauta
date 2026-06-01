@@ -3,9 +3,7 @@
    Professional design system with organized imports
    ================================================= */
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* Import Design System */
 @import './shared/variables.css';
