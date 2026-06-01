@@ -24,6 +24,7 @@
 @import './components/exam-config.css';
 @import './components/exam-take.css';
 @import './components/exam-results.css';
+@import './components/exam-review.css';
 @import './components/auth.css';
 @import './shared/layout.css';
 @import './app-layout.css';

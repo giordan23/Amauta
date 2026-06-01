@@ -29,7 +29,7 @@ export function ExamResultsPage() {
   };
 
   const handleReviewAnswers = () => {
-    navigate('/app/exam/history');
+    navigate('/app/exam/review');
   };
 
   if (loading || !result) {
@@ -164,7 +164,7 @@ export function ExamResultsPage() {
             onClick={handleReviewAnswers}
             style={{ background: 'var(--color-surface)', color: 'var(--color-on-surface)' }}
           >
-            📊 Ver Historial
+            📊 Revisar Respuestas
           </button>
           <button 
             className="ui-action-button"

@@ -291,7 +291,8 @@ class UserController {
         totalExams,
         completedExams,
         averageScore,
-        subjectStats
+        totalAnswersResult,
+        correctAnswersResult
       ] = await Promise.all([
         // Total exam attempts
         prisma.examAttempt.count({
@@ -316,19 +317,25 @@ class UserController {
           _avg: { score: true }
         }),
 
-        // Subject performance
-        prisma.studentAnswer.groupBy({
-          by: ['questionId'],
+        // Total questions answered
+        prisma.studentAnswer.count({
           where: {
             examAttempt: {
               userId: req.user.id,
               status: 'COMPLETED'
             }
-          },
-          _sum: {
+          }
+        }),
+
+        // Total correct answers
+        prisma.studentAnswer.count({
+          where: {
+            examAttempt: {
+              userId: req.user.id,
+              status: 'COMPLETED'
+            },
             isCorrect: true
-          },
-          _count: true
+          }
         })
       ])
 
@@ -339,8 +346,8 @@ class UserController {
           completedExams,
           averageScore: averageScore._avg.score || 0,
           completionRate: totalExams > 0 ? (completedExams / totalExams) * 100 : 0,
-          totalQuestionsAnswered: subjectStats.reduce((sum, stat) => sum + stat._count, 0),
-          totalCorrectAnswers: subjectStats.reduce((sum, stat) => sum + (stat._sum.isCorrect || 0), 0)
+          totalQuestionsAnswered: totalAnswersResult,
+          totalCorrectAnswers: correctAnswersResult
         }
       })
     } catch (error) {

@@ -6,6 +6,7 @@ import { ProfilePage } from '@/pages/ProfilePage';
 import { ExamConfigPage } from '@/pages/ExamConfigPage';
 import { ExamTakePage } from '@/pages/ExamTakePage';
 import { ExamResultsPage } from '@/pages/ExamResultsPage';
+import { ExamReviewPage } from '@/pages/ExamReviewPage';
 import { ExamHistoryPage } from '@/pages/ExamHistoryPage';
 import { AppLayout } from '@/components/layout';
 import { useAuthStore } from '@/store/authStore';
@@ -56,6 +57,7 @@ export const router = createBrowserRouter(
         <Route path="exam/config" element={<ExamConfigPage />} />
         <Route path="exam/take" element={<ExamTakePage />} />
         <Route path="exam/results" element={<ExamResultsPage />} />
+        <Route path="exam/review" element={<ExamReviewPage />} />
         <Route path="exam/history" element={<ExamHistoryPage />} />
       </Route>
 
