@@ -1,6 +1,6 @@
 import { api } from './api';
 
-export interface University {
+export type University = {
   id: string;
   name: string;
   shortName: string;
@@ -10,7 +10,7 @@ export interface University {
   isActive: boolean;
   questionsCount?: number;
   studentsCount?: number;
-}
+};
 
 export const universityService = {
   getUniversities: async (): Promise<University[]> => {

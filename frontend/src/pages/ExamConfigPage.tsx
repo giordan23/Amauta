@@ -1,6 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { examService } from '@/services/examService';
+import { universityService } from '@/services/universityService';
+
+interface University {
+  id: string;
+  name: string;
+  shortName: string;
+  questionsCount?: number;
+}
 
 const TIME_OPTIONS = [
   { value: 180, label: '3 horas (180 minutos)' },
@@ -15,28 +23,61 @@ const TIMER_OPTIONS = [
   { value: 'last30', label: 'Solo últimos 30 minutos' },
 ];
 
+const QUESTION_COUNT_OPTIONS = [
+  { value: 10, label: '10 preguntas' },
+  { value: 20, label: '20 preguntas' },
+  { value: 30, label: '30 preguntas' },
+  { value: 50, label: '50 preguntas' },
+  { value: 100, label: '100 preguntas' },
+];
+
 export function ExamConfigPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [universities, setUniversities] = useState<University[]>([]);
+  const [universitiesLoading, setUniversitiesLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
+  const [selectedUniversity, setSelectedUniversity] = useState<string>('');
+  const [questionCount, setQuestionCount] = useState(10);
   const [timeDuration, setTimeDuration] = useState(180);
   const [showTimer, setShowTimer] = useState<'yes' | 'no' | 'last30'>('yes');
   const [showResults, setShowResults] = useState(true);
   const [allowReview, setAllowReview] = useState(false);
   const [autoSave, setAutoSave] = useState(true);
 
+  // Load universities on mount
+  useEffect(() => {
+    async function loadUniversities() {
+      try {
+        const unis = await universityService.getUniversities();
+        // Only show universities that have questions
+        const withQuestions = unis.filter(u => u.questionsCount && u.questionsCount > 0);
+        setUniversities(withQuestions);
+        if (withQuestions.length > 0) {
+          setSelectedUniversity(withQuestions[0].id);
+        }
+      } catch (err) {
+        console.error('Failed to load universities:', err);
+        setError('No se pudieron cargar las universidades');
+      } finally {
+        setUniversitiesLoading(false);
+      }
+    }
+    loadUniversities();
+  }, []);
+
   const handleStartExam = async () => {
+    if (!selectedUniversity) {
+      setError('Por favor selecciona una universidad');
+      return;
+    }
     try {
       setLoading(true);
       setError(null);
-      
-      // Use UNI as the default university (has most questions in the DB)
-      const universityId = 'uni';
-      
-      // Start exam with 100 random questions
-      const result = await examService.startExam(universityId, 100);
-      
+
+      const result = await examService.startExam(selectedUniversity, questionCount);
+
       // Store exam attempt ID for the take page
       sessionStorage.setItem('currentExamId', result.examAttempt.id);
       sessionStorage.setItem('examConfig', JSON.stringify({
@@ -46,7 +87,7 @@ export function ExamConfigPage() {
         allowReview,
         autoSave,
       }));
-      
+
       navigate('/app/exam/take');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al iniciar el examen');
@@ -66,53 +107,83 @@ export function ExamConfigPage() {
         {/* Header Section */}
         <header className="exam-config-header">
           <h1 className="exam-config-title">
-            Simulacro de 100 Preguntas
+            Simulacro de Admisión
           </h1>
           <p className="exam-config-description">
-            Inicia un simulacro con 100 preguntas aleatorias del banco de preguntas. 
-            Obtén tu puntaje al finalizar.
+            Selecciona una universidad y la cantidad de preguntas para tu simulacro.
           </p>
         </header>
 
-        {/* Summary Stats */}
-        <div className="exam-config-summary">
-          <div className="exam-summary-stat">
-            <div className="exam-summary-value">100</div>
-            <div className="exam-summary-label">Preguntas</div>
-          </div>
-          <div className="exam-summary-stat">
-            <div className="exam-summary-value">{Math.floor(timeDuration / 60)}h</div>
-            <div className="exam-summary-label">Duración</div>
-          </div>
-          <div className="exam-summary-stat">
-            <div className="exam-summary-value">3</div>
-            <div className="exam-summary-label">Universidades</div>
-          </div>
-        </div>
-
         {/* Form Sections */}
         <div className="page-content">
-          {/* Section 1: Exam Type - Quick Start */}
+          {/* Section 1: University & Question Count */}
           <div className="ui-card">
             <div className="ui-card-header">
               <div className="ui-card-icon">🎯</div>
-              <h3 className="ui-card-title">Tipo de Simulacro</h3>
+              <h3 className="ui-card-title">Configuración del Simulacro</h3>
             </div>
             <div className="ui-card-content">
-              <div className="exam-type-grid">
-                <div className="exam-type-option exam-type-option--selected">
-                  <div className="exam-type-radio exam-type-radio--selected">
-                    <div className="exam-type-radio-dot" />
+              {universitiesLoading ? (
+                <p style={{ color: 'var(--color-text-secondary)' }}>Cargando universidades...</p>
+              ) : universities.length === 0 ? (
+                <p style={{ color: 'var(--color-error)' }}>
+                  No hay universidades disponibles con preguntas en la base de datos.
+                </p>
+              ) : (
+                <div className="config-form-grid">
+                  <div className="config-form-group">
+                    <label className="config-form-label">
+                      Universidad
+                    </label>
+                    <select
+                      value={selectedUniversity}
+                      onChange={(e) => setSelectedUniversity(e.target.value)}
+                      className="config-form-select"
+                      disabled={loading}
+                    >
+                      <option value="">-- Selecciona una universidad --</option>
+                      {universities.map((uni) => (
+                        <option key={uni.id} value={uni.id}>
+                          {uni.name} ({uni.questionsCount} preguntas)
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                  <div className="exam-type-content">
-                    <div className="exam-type-title">Simulacro Rápido</div>
-                    <div className="exam-type-subtitle">100 preguntas aleatorias - 3 horas</div>
+
+                  <div className="config-form-group">
+                    <label className="config-form-label">
+                      Número de Preguntas
+                    </label>
+                    <select
+                      value={questionCount}
+                      onChange={(e) => setQuestionCount(Number(e.target.value))}
+                      className="config-form-select"
+                      disabled={loading}
+                    >
+                      {QUESTION_COUNT_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
-              </div>
-              <p style={{ marginTop: 'var(--space-4)', color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)' }}>
-                Las preguntas se seleccionan aleatoriamente del banco de preguntas de UNMSM, UNSAAC y UNI.
-              </p>
+              )}
+
+              {/* Summary of selected university */}
+              {selectedUniversity && (
+                <div style={{ marginTop: 'var(--space-4)', padding: 'var(--space-3)', backgroundColor: 'var(--color-bg-secondary)', borderRadius: 'var(--border-radius-md)' }}>
+                  {(() => {
+                    const uni = universities.find(u => u.id === selectedUniversity);
+                    return uni ? (
+                      <p style={{ margin: 0, color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)' }}>
+                        <strong>{uni.name}</strong> — {uni.questionsCount} preguntas disponibles en el banco de datos.
+                        Se seleccionarán {questionCount} preguntas aleatorias.
+                      </p>
+                    ) : null;
+                  })()}
+                </div>
+              )}
             </div>
           </div>
 
@@ -234,10 +305,10 @@ export function ExamConfigPage() {
             <button
               className="config-action-button config-action-button--primary"
               onClick={handleStartExam}
-              disabled={loading}
-              style={{ opacity: loading ? 0.7 : 1 }}
+              disabled={loading || !selectedUniversity || universitiesLoading}
+              style={{ opacity: (loading || !selectedUniversity || universitiesLoading) ? 0.7 : 1 }}
             >
-              {loading ? 'Iniciando...' : '🚀 Iniciar Simulacro de 100 Preguntas'}
+              {loading ? 'Iniciando...' : '🚀 Iniciar Simulacro'}
             </button>
           </div>
         </div>
