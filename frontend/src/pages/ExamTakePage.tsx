@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { examService, type ExamStartResponse } from '@/services/examService';
 
@@ -10,15 +10,22 @@ interface ExamConfig {
   autoSave: boolean;
 }
 
+const letters = ['A', 'B', 'C', 'D', 'E'];
+
 export function ExamTakePage() {
   const navigate = useNavigate();
   const [examData, setExamData] = useState<ExamStartResponse | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [flagged, setFlagged] = useState<Set<string>>(new Set());
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showNavigator, setShowNavigator] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSavedRef = useRef<string>('');
 
   // Load exam from session storage
   useEffect(() => {
@@ -73,6 +80,51 @@ export function ExamTakePage() {
   const handleSelectOption = useCallback((questionId: string, optionId: string) => {
     setAnswers(prev => ({ ...prev, [questionId]: optionId }));
   }, []);
+
+  const toggleFlag = useCallback((questionId: string) => {
+    setFlagged(prev => {
+      const next = new Set(prev);
+      if (next.has(questionId)) {
+        next.delete(questionId);
+      } else {
+        next.add(questionId);
+      }
+      return next;
+    });
+  }, []);
+
+  // Auto-save debounce
+  useEffect(() => {
+    if (!examData) return;
+    const configStr = sessionStorage.getItem('examConfig');
+    const config: ExamConfig = configStr ? JSON.parse(configStr) : null;
+    if (!config?.autoSave) return;
+
+    const currentAnswersStr = JSON.stringify(answers);
+    if (currentAnswersStr === lastSavedRef.current) return;
+
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current);
+    }
+
+    setSaveStatus('saving');
+    autoSaveTimerRef.current = setTimeout(async () => {
+      const examId = sessionStorage.getItem('currentExamId');
+      if (!examId) return;
+      try {
+        for (const question of examData.questions) {
+          if (answers[question.id]) {
+            await examService.answerQuestion(examId, question.id, answers[question.id]);
+          }
+        }
+        lastSavedRef.current = currentAnswersStr;
+        setSaveStatus('saved');
+        setTimeout(() => setSaveStatus('idle'), 2000);
+      } catch {
+        setSaveStatus('idle');
+      }
+    }, 1500);
+  }, [answers, examData]);
 
   const handleNext = () => {
     if (examData && currentIndex < examData.questions.length - 1) {
@@ -171,12 +223,28 @@ export function ExamTakePage() {
           <span className="exam-header-title">Simulacro</span>
           <span className="exam-header-progress">{currentIndex + 1} / {totalQuestions}</span>
         </div>
-        
-        {timeLeft !== null && (
-          <div className={`exam-timer ${timeLeft < 300 ? 'exam-timer-warning' : ''}`}>
-            ⏱️ {formatTime(timeLeft)}
-          </div>
-        )}
+
+        <div className="exam-header-actions">
+          {/* Save status */}
+          {saveStatus !== 'idle' && (
+            <span className={`save-indicator save-indicator--${saveStatus}`}>
+              {saveStatus === 'saving' ? 'Guardando...' : '✓ Guardado'}
+            </span>
+          )}
+          {/* Toggle navigator */}
+          <button
+            className={`exam-navigator-toggle ${showNavigator ? 'active' : ''}`}
+            onClick={() => setShowNavigator(v => !v)}
+            title="Navegador de preguntas"
+          >
+            ☰
+          </button>
+          {timeLeft !== null && (
+            <div className={`exam-timer ${timeLeft < 300 ? 'exam-timer-warning' : ''}`}>
+              ⏱️ {formatTime(timeLeft)}
+            </div>
+          )}
+        </div>
       </header>
 
       {/* Progress bar */}
@@ -186,16 +254,61 @@ export function ExamTakePage() {
 
       {/* Question content */}
       <div className="exam-take-content">
+        {/* Navigator sidebar (mobile: bottom sheet style) */}
+        {showNavigator && (
+          <div className="question-navigator">
+            <div className="navigator-header">
+              <span className="navigator-title">Preguntas</span>
+              <button className="navigator-close" onClick={() => setShowNavigator(false)}>×</button>
+            </div>
+            <div className="navigator-stats">
+              <span className="navigator-stat">
+                <span className="navigator-dot navigator-dot--answered" />
+                {answeredCount} respondidas
+              </span>
+              <span className="navigator-stat">
+                <span className="navigator-dot navigator-dot--flagged" />
+                {flagged.size} marcadas
+              </span>
+            </div>
+            <div className="navigator-grid">
+              {examData.questions.map((q, i) => {
+                const isAnswered = !!answers[q.id];
+                const isFlagged = flagged.has(q.id);
+                const isCurrent = i === currentIndex;
+                return (
+                  <button
+                    key={q.id}
+                    className={`nav-question ${isCurrent ? 'nav-question--current' : ''} ${isAnswered ? 'nav-question--answered' : ''} ${isFlagged ? 'nav-question--flagged' : ''}`}
+                    onClick={() => { setCurrentIndex(i); setShowNavigator(false); }}
+                  >
+                    {i + 1}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         <div className="exam-question-card">
           <div className="exam-question-number">
-            Pregunta {currentIndex + 1}
-            {currentQuestion.difficulty && (
-              <span className={`exam-difficulty exam-difficulty-${currentQuestion.difficulty.toLowerCase()}`}>
-                {currentQuestion.difficulty}
-              </span>
-            )}
+            <span>
+              Pregunta {currentIndex + 1}
+              {currentQuestion.difficulty && (
+                <span className={`exam-difficulty exam-difficulty-${currentQuestion.difficulty.toLowerCase()}`}>
+                  {currentQuestion.difficulty}
+                </span>
+              )}
+            </span>
+            <button
+              className={`flag-button ${flagged.has(currentQuestion.id) ? 'flag-button--active' : ''}`}
+              onClick={() => toggleFlag(currentQuestion.id)}
+              title={flagged.has(currentQuestion.id) ? 'Desmarcar' : 'Marcar para revisar'}
+            >
+              ⚑
+            </button>
           </div>
-          
+
           <div className="exam-question-text">
             {currentQuestion.text}
           </div>
@@ -209,15 +322,14 @@ export function ExamTakePage() {
           <div className="exam-options-list">
             {currentQuestion.options.map((option, idx) => {
               const isSelected = answers[currentQuestion.id] === option.id;
-              const letters = ['A', 'B', 'C', 'D', 'E'];
-              
+
               return (
                 <button
                   key={option.id}
                   className={`exam-option ${isSelected ? 'exam-option-selected' : ''}`}
                   onClick={() => handleSelectOption(currentQuestion.id, option.id)}
                 >
-                  <span className="exam-option-letter">{letters[idx] || idx + 1}</span>
+                  <span className="exam-option-letter">{letters[idx]}</span>
                   <span className="exam-option-text">{option.text}</span>
                 </button>
               );
@@ -227,21 +339,21 @@ export function ExamTakePage() {
 
         {/* Navigation */}
         <div className="exam-navigation">
-          <button 
+          <button
             className="exam-nav-button"
             onClick={handlePrev}
             disabled={currentIndex === 0}
           >
             ← Anterior
           </button>
-          
+
           <div className="exam-dots">
             {Array.from({ length: Math.min(totalQuestions, 20) }, (_, i) => {
               const q = examData.questions[i];
               const isAnswered = !!answers[q?.id];
               const isCurrent = i === currentIndex;
               return (
-                <span 
+                <span
                   key={i}
                   className={`exam-dot ${isCurrent ? 'exam-dot-current' : ''} ${isAnswered ? 'exam-dot-answered' : ''}`}
                   onClick={() => setCurrentIndex(i)}
@@ -252,14 +364,14 @@ export function ExamTakePage() {
           </div>
 
           {currentIndex < totalQuestions - 1 ? (
-            <button 
+            <button
               className="exam-nav-button"
               onClick={handleNext}
             >
               Siguiente →
             </button>
           ) : (
-            <button 
+            <button
               className="exam-nav-button exam-nav-button-submit"
               onClick={handleSubmit}
               disabled={submitting}
@@ -272,7 +384,7 @@ export function ExamTakePage() {
         {/* Stats footer */}
         <div className="exam-stats-footer">
           <span>Respondidas: {answeredCount}/{totalQuestions}</span>
-          <button 
+          <button
             className="exam-submit-link"
             onClick={handleSubmit}
             disabled={submitting || answeredCount === 0}

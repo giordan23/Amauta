@@ -52,11 +52,11 @@ function getScoreClass(score: number): string {
   return 'needs-improvement';
 }
 
-function getSubjectType(): string {
+function getSubjectType(_type: string): string {
   return 'complete';
 }
 
-function getSubjectIcon(): string {
+function getSubjectIcon(_type: string): string {
   return '📚';
 }
 
